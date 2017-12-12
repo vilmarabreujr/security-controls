@@ -1,4 +1,4 @@
-package romulets.wso2.rest.exception;
+package exception;
 
 public class AuthFailureException extends Wso2ExampleException {
 

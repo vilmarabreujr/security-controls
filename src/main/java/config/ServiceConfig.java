@@ -1,4 +1,4 @@
-package romulets.wso2.rest;
+package config;
 
 import javax.ws.rs.ApplicationPath;
 
@@ -9,7 +9,7 @@ public class ServiceConfig extends ResourceConfig {
 
     public ServiceConfig() {
         packages("com.fasterxml.jackson.jarxrs.json");
-        packages("romulets.wso2.rest");
+        packages("controls.resource");
     }
 
 }

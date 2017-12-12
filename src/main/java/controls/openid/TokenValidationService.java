@@ -1,4 +1,4 @@
-package romulets.wso2.rest.service;
+package controls.openid;
 
 import java.rmi.RemoteException;
 
@@ -12,7 +12,7 @@ import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationRequestDTO_
 import org.wso2.carbon.identity.oauth2.stub.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import romulets.wso2.rest.util.AuthProperties;
+import util.AuthProperties;
 
 public class TokenValidationService {
     

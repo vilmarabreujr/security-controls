@@ -1,4 +1,4 @@
-package romulets.wso2.rest.resource;
+package controls.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,11 +9,11 @@ import javax.ws.rs.core.Response;
 
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 
-import romulets.wso2.rest.response.GetUriResponse;
-import romulets.wso2.rest.service.AuthenticationService;
+import controls.openid.AuthenticationService;
+import controls.response.GetUriResponse;
 
-@Path("authentication")
-public class AuthenticationResource {
+@Path("rbac")
+public class RBACResource {
 
     @GET
     @Path("uri")

@@ -1,4 +1,4 @@
-package romulets.wso2.rest.util;
+package util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package romulets.wso2.rest.exception;
+package exception;
 
 public class Wso2ExampleException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package romulets.wso2.rest.response;
+package controls.response;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package romulets.wso2.rest.service;
+package controls.openid;
 
 
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import org.apache.amber.oauth2.client.request.OAuthClientRequest;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.http.client.utils.URLEncodedUtils;
 
-import romulets.wso2.rest.util.AuthProperties;
-import romulets.wso2.rest.util.NameValuePair;
+import util.AuthProperties;
+import util.NameValuePair;
 
 public class AuthenticationService {
     

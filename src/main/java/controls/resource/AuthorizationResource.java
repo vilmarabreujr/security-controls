@@ -1,4 +1,4 @@
-package romulets.wso2.rest.resource;
+package controls.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,8 +10,8 @@ import javax.ws.rs.core.Response;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 
-import romulets.wso2.rest.response.AuthorizationResponse;
-import romulets.wso2.rest.service.AuthorizationService;
+import controls.openid.AuthorizationService;
+import controls.response.AuthorizationResponse;
 
 @Path("authorizate")
 public class AuthorizationResource {

@@ -1,4 +1,4 @@
-package romulets.wso2.rest.util;
+package util;
 
 public class NameValuePair implements org.apache.http.NameValuePair {
 

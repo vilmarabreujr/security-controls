@@ -1,4 +1,4 @@
-package romulets.wso2.rest.resource;
+package controls.resource;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import romulets.wso2.rest.service.UserInformationService;
+import controls.openid.UserInformationService;
 
 @Path("user-information")
 public class UserInformationResource {

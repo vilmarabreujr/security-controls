@@ -1,4 +1,4 @@
-package romulets.wso2.rest.service;
+package controls.openid;
 
 import org.apache.amber.oauth2.client.OAuthClient;
 import org.apache.amber.oauth2.client.URLConnectionClient;
@@ -8,7 +8,7 @@ import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.types.GrantType;
 
-import romulets.wso2.rest.util.AuthProperties;
+import util.AuthProperties;
 
 public class AuthorizationService {
     

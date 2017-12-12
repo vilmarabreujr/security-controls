@@ -1,4 +1,4 @@
-package romulets.wso2.rest.resource;
+package controls.resource;
 
 import java.rmi.RemoteException;
 
@@ -9,8 +9,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import romulets.wso2.rest.response.TokenValidationResponse;
-import romulets.wso2.rest.service.TokenValidationService;
+import controls.openid.TokenValidationService;
+import controls.response.TokenValidationResponse;
 
 @Path("validate-token")
 public class TokenValidationResource {

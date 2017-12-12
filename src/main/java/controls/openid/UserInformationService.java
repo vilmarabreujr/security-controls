@@ -1,4 +1,4 @@
-package romulets.wso2.rest.service;
+package controls.openid;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import romulets.wso2.rest.util.AuthProperties;
+import util.AuthProperties;
 
 public class UserInformationService {
 
