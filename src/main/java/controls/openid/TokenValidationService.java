@@ -17,7 +17,7 @@ import util.AuthProperties;
 public class TokenValidationService {
     
     private static final int TIMEOUT_IN_MILLIS = 15 * 1000;
-    
+    private String subject = "";
     /**
      * 
      * @param accessToken
@@ -26,7 +26,13 @@ public class TokenValidationService {
      */
     public boolean isTokenValid(String accessToken) throws RemoteException {
         OAuth2TokenValidationResponseDTO resp = getTokenValidation(accessToken);
+        this.subject = resp.getAuthorizedUser();
         return resp.getValid();
+    }
+    
+    public String getSubject()
+    {
+    	return subject;
     }
     
     /**
@@ -39,7 +45,6 @@ public class TokenValidationService {
     public OAuth2TokenValidationResponseDTO getTokenValidation(String accessToken) throws AxisFault, RemoteException {
         OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
         oauthReq.setAccessToken(getOAuthToken(accessToken));
-
         return getValidationService().validate(oauthReq);        
     }
 

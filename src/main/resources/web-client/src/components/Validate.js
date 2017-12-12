@@ -25,7 +25,7 @@ export default class Validate extends Component {
   getUserInformation () {
     const { accessToken } = this.props
 
-    const authPath = window.location.origin + '/wso2Example/api/user-information'
+    const authPath = window.location.origin + '/securitycontrols/api/user-information'
     const query = queryString.stringify({ accessToken })
     const requestUri = `${authPath}?${query}`
 
@@ -42,7 +42,7 @@ export default class Validate extends Component {
   fetchValidateUri () {
     const { accessToken } = this.props
 
-    const authPath = window.location.origin + '/wso2Example/api/validate-token'
+    const authPath = window.location.origin + '/securitycontrols/api/validate-token'
     const query = queryString.stringify({ accessToken })
     const requestUri = `${authPath}?${query}`
 

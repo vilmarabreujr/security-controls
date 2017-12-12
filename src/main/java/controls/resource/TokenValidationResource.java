@@ -24,7 +24,8 @@ public class TokenValidationResource {
         try {
 
             boolean isTokenValid = service.isTokenValid(accessToken);
-            return Response.ok(new TokenValidationResponse(isTokenValid)).build();
+            String subject = service.getSubject();
+            return Response.ok(new TokenValidationResponse(isTokenValid,subject)).build();
 
         } catch (RemoteException e) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(e).build();

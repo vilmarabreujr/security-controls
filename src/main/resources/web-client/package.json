@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "build": "^0.1.4",
     "query-string": "^5.0.0",
     "react": "^15.6.1",
     "react-cookie": "^2.1.1",
     "react-dom": "^15.6.1",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.13"
+    "react-scripts": "1.0.13",
+    "run": "^1.4.0"
   },
   "scripts": {
     "start": "react-scripts start",

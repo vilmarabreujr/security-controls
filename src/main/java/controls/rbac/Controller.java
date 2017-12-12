@@ -137,6 +137,7 @@ public class Controller
             for( int i = 0; i < users.length; i++ )
             {
             	String userString = users[i];
+            	System.out.println(userString);
             	User user = new User(userString);
             	listUsers.add(user);
             	//Search user roles
@@ -149,6 +150,7 @@ public class Controller
                 	{
                 		//New role
                 		role = new Role(roleString);
+                    	System.out.println(roleString);
                     	listRoles.add(role);
                 	}
                 	UserAssignment(user, role);

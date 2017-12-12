@@ -29,7 +29,7 @@ class Authorizate extends Component {
     const location = window.location
 
     const callbackUri = location.origin + location.pathname
-    const authPath = location.origin + '/wso2Example/api/authorizate'
+    const authPath = location.origin + '/securitycontrols/api/authorizate'
     const query = queryString.stringify({
             callbackUri,
             authorizationToken: code
