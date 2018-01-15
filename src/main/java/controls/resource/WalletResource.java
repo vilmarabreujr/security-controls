@@ -116,7 +116,7 @@ public class WalletResource {
 			}
 			if( !s.getListRoles().contains(activeRole) )
 			{
-	            return Response.ok("{\"error\": \"Role must be activated.\"}").build();
+	            return Response.ok("{\"error\": \"The exported role must be activated.\"}").build();
 			}									
 
 			String response = policyManager.getPolicy("politica_role");

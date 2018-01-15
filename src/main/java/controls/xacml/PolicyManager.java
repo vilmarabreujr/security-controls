@@ -1,5 +1,8 @@
 package controls.xacml;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.axis2.AxisFault;
@@ -11,6 +14,8 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
+import org.wso2.carbon.identity.entitlement.stub.dto.AttributeDTO;
+import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedPolicySetDTO;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedStatusHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
@@ -23,6 +28,11 @@ public class PolicyManager
 	private String authCookie;
 	private EntitlementPolicyAdminServiceStub policyAdminStub;
 	private XACMLProperties properties;
+	private String roleAttribute = "rbac_active_role";
+	private String actionAttribute = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+	private String resourceAttribute = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+	
+	
 	public PolicyManager() throws Exception
 	{
 		policyAdminStub = null;
@@ -140,6 +150,88 @@ public class PolicyManager
             	return null;
             }
             return policyDTO.getPolicy();
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("\nError :  " + e.getMessage());
+            e.printStackTrace();
+            authCookie = null;
+            return null;
+        }
+	}
+	
+	public String clonePolicyRole(String roleID)
+	{
+		PolicyDTO policyDTO = getPolicyByRole(roleID);
+		if( policyDTO == null )
+			return "Error: Policy doesn't exists";
+				
+		Map<String, ArrayList<String>> permissions = new HashMap<String, ArrayList<String>>();
+		
+		String resource = null;
+		for( AttributeDTO attribute : policyDTO.getAttributeDTOs())
+        {
+			if( attribute.getAttributeId().equals(resourceAttribute) )
+			{
+				resource = attribute.getAttributeValue();
+				ArrayList<String> resourcePermissions = permissions.get(resource);
+				if( resourcePermissions == null )
+				{
+					resourcePermissions = new ArrayList<String>();
+					permissions.put(resource, resourcePermissions);
+				}
+			}
+			else if( attribute.getAttributeId().equals(actionAttribute) )
+			{
+				String action = attribute.getAttributeValue();
+				ArrayList<String> resourcePermissions = permissions.get(resource);
+				if( resourcePermissions == null )
+				{
+					resourcePermissions = new ArrayList<String>();
+				}
+				resourcePermissions.add(action);
+				permissions.put(resource, resourcePermissions);				
+			}
+        }
+		
+		for( String r : permissions.keySet() )
+		{
+			ArrayList<String> resourcePermissions = permissions.get(r);
+			System.out.println(r);
+			for( String a : resourcePermissions )
+			{
+				System.out.println("---->" + a);				
+			}
+		}
+		
+		return "okay";
+	}
+	
+	public PolicyDTO getPolicyByRole(String roleID)
+	{
+        try {          
+        	String[] policies = policyAdminStub.getAllPolicyIds("");
+        	for( String policyID : policies )
+        	{
+                PolicyDTO policyDTO = policyAdminStub.getPolicy(policyID, false);
+                if( policyDTO != null )
+                {
+                	for( AttributeDTO attribute : policyDTO.getAttributeDTOs())
+                    {
+                    	if( attribute.getAttributeId().equals(roleAttribute) )
+                    	{
+                    		if( attribute.getAttributeValue().equals(roleID) )
+                        	{
+                    			return policyDTO;
+                        	}
+                    		else
+                    			break;
+                    	}
+                    }
+                }
+        	}
+            
+            return null;
         } 
         catch (Exception e) 
         {
