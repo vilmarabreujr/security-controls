@@ -19,7 +19,7 @@ public class AccessControlResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response authorizate(@QueryParam("token") String token,
+    public Response authorizate(@QueryParam("accessToken") String token,
                                     @QueryParam("resource") String resource,
                                     @QueryParam("action") String action) {
     	

@@ -150,7 +150,6 @@ public class Controller
                 	{
                 		//New role
                 		role = new Role(roleString);
-                    	System.out.println(roleString);
                     	listRoles.add(role);
                 	}
                 	UserAssignment(user, role);
