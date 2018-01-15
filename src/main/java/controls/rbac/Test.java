@@ -12,7 +12,7 @@ public class Test {
 	public static void main(String[] args) 
 	{
 		// TODO Auto-generated method stub
-		Controller controller = new Controller();
+		Controller controller = new Controller(false);
 		controller.LoadWSo2("https://localhost:9444/services/RemoteUserStoreManagerService", "admin", "admin");
 
 		User u = controller.getUser("vilmar");

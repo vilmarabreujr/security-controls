@@ -12,6 +12,8 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
 
+import util.XACMLProperties;
+
 public class Controller 
 {
 	private List<User> listUsers;
@@ -20,13 +22,19 @@ public class Controller
 	private List<Constraint> dynamicConstraints;
 	private RemoteUserStoreManagerServiceStub adminStub;
 	
-	public Controller()
+	public Controller(boolean loadWSo2)
 	{
 		listUsers = new ArrayList<User>();
 		listRoles = new ArrayList<Role>();
 		listSession = new ArrayList<Session>();
 		dynamicConstraints = new ArrayList<Constraint>();
 		adminStub = null;
+
+		if( loadWSo2 ) 
+		{
+			XACMLProperties properties = XACMLProperties.inst();
+			LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword());
+		}
 	}
 	
 	

@@ -14,18 +14,20 @@ import javax.ws.rs.core.Response;
 import controls.openid.TokenValidationService;
 import controls.response.TokenValidationResponse;
 import controls.rbac.*;
-import util.XACMLProperties;
 
 @Path("rbac")
 public class RBACResource {
 	private static Controller controllerRBAC;
+
+	public static Controller getControllerRBAC()
+	{
+		return controllerRBAC;
+	}
 	
 	public RBACResource() {
 		if( controllerRBAC == null )
 		{
-			controllerRBAC = new Controller();
-			XACMLProperties properties = XACMLProperties.inst();
-			controllerRBAC.LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword());
+			controllerRBAC = new Controller(true);
 		}
 	}
 

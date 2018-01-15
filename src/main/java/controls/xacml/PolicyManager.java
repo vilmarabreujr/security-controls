@@ -1,6 +1,5 @@
 package controls.xacml;
 
-import java.io.InputStream;
 import java.util.Random;
 
 import org.apache.axis2.AxisFault;
@@ -10,16 +9,12 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.XML;
+
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
-import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedStatusHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.StatusHolder;
-import org.wso2.carbon.identity.entitlement.stub.types.axis2.XACMLAuthzDecisionQueryResponse;
 
 import util.XACMLProperties;
 
@@ -28,7 +23,7 @@ public class PolicyManager
 	private String authCookie;
 	private EntitlementPolicyAdminServiceStub policyAdminStub;
 	private XACMLProperties properties;
-	public PolicyManager(InputStream propertiesFile) throws Exception
+	public PolicyManager() throws Exception
 	{
 		policyAdminStub = null;
 		authCookie = null;
