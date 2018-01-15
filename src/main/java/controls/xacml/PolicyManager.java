@@ -194,17 +194,12 @@ public class PolicyManager
 			}
         }
 		
-		for( String r : permissions.keySet() )
-		{
-			ArrayList<String> resourcePermissions = permissions.get(r);
-			System.out.println(r);
-			for( String a : resourcePermissions )
-			{
-				System.out.println("---->" + a);				
-			}
-		}
-		
-		return "okay";
+
+    	Random r = new Random();
+    	int id = r.nextInt();
+        String newPolicyID = "DynamicPolicy" + Integer.toString(id);
+		String policyString = getTemplatePolicy(newPolicyID, "doutorando", permissions);				
+		return policyString;
 	}
 	
 	public PolicyDTO getPolicyByRole(String roleID)
@@ -241,6 +236,53 @@ public class PolicyManager
             return null;
         }
 	}
+	
+	private  String getTemplatePolicy(String policyID, String role, Map<String, ArrayList<String>> permissions){
+		String policy = 
+					"<Policy xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\"  PolicyId=\"" + policyID + "\" RuleCombiningAlgId=\"urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable\" Version=\"1.0\">"+
+					"   <Target></Target>";
+		int ruleCount = 0;
+		for( String resource : permissions.keySet() )
+		{
+			ArrayList<String> resourcePermissions = permissions.get(resource);
+			for( String action : resourcePermissions )
+			{
+				policy +=		
+						"   <Rule Effect=\"Permit\" RuleId=\"rule_" + Integer.toString(ruleCount) +"\">" +
+						"      <Target>" +
+						"         <AnyOf>" +
+						"            <AllOf>" +
+						"               <Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">"+
+						"                  <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + resource + "</AttributeValue>"+
+						"                  <AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"></AttributeDesignator>"+
+						"               </Match>" +
+						"            </AllOf>"+
+						"         </AnyOf>"+
+						"         <AnyOf>"+
+						"            <AllOf>"+
+						"               <Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">"+
+						"                  <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + action + "</AttributeValue>"+
+						"                  <AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"></AttributeDesignator>"+
+						"               </Match>"+
+						"            </AllOf>"+
+						"         </AnyOf>"+
+						"      </Target>"+
+						"      <Condition>"+
+						"         <Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:any-of\">"+
+						"            <Function FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\"></Function>"+
+						"            <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + role + "</AttributeValue>"+
+						"            <AttributeDesignator AttributeId=\"rbac_active_role\" Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"></AttributeDesignator>"+
+						"         </Apply>"+
+						"     </Condition>"+
+						"   </Rule>";	
+				ruleCount++;
+			}
+		}		
+		
+		policy += 	"   <Rule Effect=\"Deny\" RuleId=\"denyall\"></Rule>"+
+					"</Policy>"     ;   
+		return policy;
+    }
 	
 	private  String getTemplatePolicy(String policyID, String role, String resource, String action){
 

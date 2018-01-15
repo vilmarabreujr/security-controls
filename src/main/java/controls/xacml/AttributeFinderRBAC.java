@@ -36,7 +36,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     private final String EXPORTED_ROLE_ID = "rbac_exported_role";
     private String ExternalDomain = "";
     private Map<String, Set<String> > EstruturaBD;
-    private boolean cacheEnable = true;
+    private boolean cacheEnable = false;
 
     @Override
 	public void init(Properties properties)  throws Exception{
@@ -55,7 +55,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
                                           String environmentId, String attributeId, String issuer) throws Exception{
 
 		
-    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){
+    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){true
             return null;
         }
 		Set<String> values = new HashSet<String>();
