@@ -12,6 +12,8 @@ import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedStatusHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.StatusHolder;
 
+import controls.domains.DomainController;
+
 import java.io.File;
 
 /**
@@ -41,10 +43,11 @@ public class PolicyTester {
     public static final String SERVER_PASSWORD = "admin";
 
     public static void main (String[] args) throws Exception {
-
-    	PolicyManager manager = new PolicyManager();
-    	String s = manager.clonePolicyRole("doutorando");
-        System.out.println(s);
+    	DomainController d = DomainController.getInstance();
+    	//PolicyManager manager = new PolicyManager();
+    	//String s = manager.exportPolicy("doutorando", "admin");
+        //String s = manager.DeletePolicy("DynamicPolicy1470854030");
+    	//System.out.println(s);
 
     }
 

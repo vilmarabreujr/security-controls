@@ -70,34 +70,23 @@ public class PolicyManager
 	}
 	
 	
-	public String CreatePolicy(String role, String resource, String action)
+	public String CreatePolicy(PolicyDTO policyDTO)
 	{
-        try {            
-        	Random r = new Random();
-        	int id = r.nextInt();
-            String samplePolicyName = "DynamicPolicy" + Integer.toString(id);
-            String policy =  getTemplatePolicy(samplePolicyName, role, resource, action);
-
-            PolicyDTO policyDTO = new PolicyDTO();
-            policyDTO.setPolicy(policy);
-            try{
-                policyAdminStub.addPolicy(policyDTO);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-            policyAdminStub.publishToPDP(new String[]{samplePolicyName}, EntitlementConstants.PolicyPublish.ACTION_CREATE, null, false, 0);
+        try {       
+            policyAdminStub.addPolicy(policyDTO);
+            String policyID = policyDTO.getPolicyId();
+            policyAdminStub.publishToPDP(new String[]{policyID}, EntitlementConstants.PolicyPublish.ACTION_CREATE, null, true, 0);
 
             Thread.sleep(2000);
             PaginatedStatusHolder paginatedStatusHolder = policyAdminStub.
-                    getStatusData(EntitlementConstants.Status.ABOUT_POLICY, samplePolicyName, EntitlementConstants.StatusTypes.PUBLISH_POLICY, "*", 1);
+                    getStatusData(EntitlementConstants.Status.ABOUT_POLICY, policyID, EntitlementConstants.StatusTypes.PUBLISH_POLICY, "*", 1);
             StatusHolder statusHolder = paginatedStatusHolder.getStatusHolders()[0];
             if(statusHolder.getSuccess() && EntitlementConstants.PolicyPublish.ACTION_CREATE.equals(statusHolder.getTargetAction())){
                 System.out.println("INFO : Policy is published successfully");
-                return samplePolicyName;
+                return policyID;
             } else {
-                System.out.println("INFO : Policy is failed to publish");
-                return null;
+                System.out.println("ERROR : Policy is failed to publish");
+                return "ERROR : Policy is failed to publish";
             }            
         } 
         catch (Exception e) 
@@ -105,39 +94,33 @@ public class PolicyManager
             System.out.println("\nError :  " + e.getMessage());
             e.printStackTrace();
             authCookie = null;
-            return null;
+            return "\nError :  " + e.getMessage();
         }
 	}
 	
-	public boolean DeletePolicy(String policyID)
+	public String DeletePolicy(String policyID)
 	{
         try {            
-            try{
-                policyAdminStub.dePromotePolicy(policyID);
-                Thread.sleep(2000);
-                PaginatedStatusHolder paginatedStatusHolder = policyAdminStub.
-                        getStatusData(EntitlementConstants.Status.ABOUT_POLICY, policyID, EntitlementConstants.StatusTypes.PUBLISH_POLICY, "*", 1);
-                StatusHolder statusHolder = paginatedStatusHolder.getStatusHolders()[0];
-                if(statusHolder.getSuccess() && EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(statusHolder.getTargetAction())){
-                    policyAdminStub.removePolicy(policyID, false);
-                    System.out.println("INFO: Policy is deleted successfully");
-                    return true;
-                } else {
-                    System.out.println("Error:  Policy is failed to delete");
-                    return false;
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-                return false;
-            }
-            
+        	policyAdminStub.dePromotePolicy(policyID);
+            Thread.sleep(2000);
+            PaginatedStatusHolder paginatedStatusHolder = policyAdminStub.
+                    getStatusData(EntitlementConstants.Status.ABOUT_POLICY, policyID, EntitlementConstants.StatusTypes.PUBLISH_POLICY, "*", 1);
+            StatusHolder statusHolder = paginatedStatusHolder.getStatusHolders()[0];
+            if(statusHolder.getSuccess() && EntitlementConstants.PolicyPublish.ACTION_DELETE.equals(statusHolder.getTargetAction())){
+                policyAdminStub.removePolicy(policyID, false);
+                System.out.println("INFO: Policy is deleted successfully");
+                return "Policy is deleted successfully";
+            } else {
+                System.out.println("Error:  Policy is failed to delete");
+                return "Error:  Policy is failed to delete";
+            }            
         } 
         catch (Exception e) 
         {
             System.out.println("Error :  " + e.getMessage());
             e.printStackTrace();
             authCookie = null;
-            return false;
+            return "Error: " + e.getMessage();
         }
 	}
 	
@@ -160,11 +143,21 @@ public class PolicyManager
         }
 	}
 	
-	public String clonePolicyRole(String roleID)
+	public String exportPolicy(String roleID, String exportedRoleID)
+	{
+		PolicyDTO policyDTO = clonePolicyRole(roleID, exportedRoleID);
+		if( policyDTO == null )
+			return null;
+		
+		String response = CreatePolicy(policyDTO);		
+		return response;
+	}
+	
+	public PolicyDTO clonePolicyRole(String roleID, String exportedRoleID)
 	{
 		PolicyDTO policyDTO = getPolicyByRole(roleID);
 		if( policyDTO == null )
-			return "Error: Policy doesn't exists";
+			return null;
 				
 		Map<String, ArrayList<String>> permissions = new HashMap<String, ArrayList<String>>();
 		
@@ -194,12 +187,16 @@ public class PolicyManager
 			}
         }
 		
+		//Permissions filter
 
     	Random r = new Random();
     	int id = r.nextInt();
         String newPolicyID = "DynamicPolicy" + Integer.toString(id);
-		String policyString = getTemplatePolicy(newPolicyID, "doutorando", permissions);				
-		return policyString;
+		String policyString = getTemplatePolicy(newPolicyID, exportedRoleID, permissions);
+		PolicyDTO newPolicy = new PolicyDTO();
+		newPolicy.setPolicyId(newPolicyID);
+		newPolicy.setPolicy(policyString);
+		return newPolicy;
 	}
 	
 	public PolicyDTO getPolicyByRole(String roleID)

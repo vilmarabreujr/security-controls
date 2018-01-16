@@ -81,7 +81,7 @@ public class Controller
 		}
 		return null;
 	}
-	
+		
 	public void UserAssignment(User user, Role role)
 	{
 		//VERIFICAR O SOD ESTATICO NESSE PONTO
@@ -354,16 +354,17 @@ public class Controller
 		return false;
 	}
 	
-	public String CreateRole()
+	public String CreateExportedRole(String domain)
 	{
         try 
         {        	 
 			//Criar papel
         	Random r = new Random();
         	int id = r.nextInt();
-            String roleName = "DynamicRole" + Integer.toString(id);
-        	adminStub.addRole(roleName, null, null);               
-        	AddRole(roleName);
+            String roleName = "DynamicRole" + Integer.toString(id);       
+
+    		ExportedRole role = new ExportedRole(roleName, domain);
+        	listRoles.add(role);
     		return roleName;         
         } 
         catch (Exception e) 

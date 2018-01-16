@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Role 
 {
-	private String id;
-	private String name;
-	private List<User> listUsers;
+	protected String id;
+	protected String name;
+	protected List<User> listUsers;
 	public Role(String id)
 	{
 		this.id = id;

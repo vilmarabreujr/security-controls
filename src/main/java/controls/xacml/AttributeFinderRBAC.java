@@ -55,7 +55,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
                                           String environmentId, String attributeId, String issuer) throws Exception{
 
 		
-    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){true
+    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){
             return null;
         }
 		Set<String> values = new HashSet<String>();
@@ -76,8 +76,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 			}
 			if( buscarValores )
 			{
-				String content = getActivateRoles(subjectId);  
-				System.out.println(content);
+				String content = getActivateRoles(subjectId); 
 	    		
 	        	JSONObject jObject = new JSONObject(content);
 	    		JSONArray listRoles = jObject.getJSONArray("activeroles");
