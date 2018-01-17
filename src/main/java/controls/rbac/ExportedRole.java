@@ -3,6 +3,9 @@ package controls.rbac;
 
 public class ExportedRole extends Role{
 	private String domain;
+	public String getDomain() {
+		return domain;
+	}
 	public ExportedRole(String id, String domain) {
 		super(id);
 		this.domain = domain;

@@ -11,14 +11,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import controls.domains.Domain;
 import controls.domains.DomainController;
 import controls.openid.TokenValidationService;
 import controls.rbac.Controller;
+import controls.rbac.ExportedRole;
 import controls.rbac.Role;
 import controls.rbac.Session;
 import controls.rbac.User;
 import controls.response.TokenValidationResponse;
 import controls.xacml.PolicyManager;
+import util.RSA;
 
 @Path("wallet")
 public class WalletResource {
@@ -32,7 +35,7 @@ public class WalletResource {
 
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExportedRoles(@QueryParam("accessToken") String token) {
+    public Response getExportedRoles(@QueryParam("accessToken") String token, @QueryParam("domain") String domain) {
         TokenValidationService service = new TokenValidationService();
         
         try {
@@ -40,43 +43,28 @@ public class WalletResource {
             if( !isTokenValid )
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
-            String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-
+            DomainController domainController = DomainController.getInstance();
+            Domain externalDomain = domainController.getDomain(domain);
+			if( externalDomain == null )
+			{
+	            return Response.ok("{\"error\": \"The domain is not trustable.\"}").build();
+			}
             Controller controllerRBAC = RBACResource.getControllerRBAC();
-            User u = controllerRBAC.getUser(subject);
-			if( u == null )
-			{
-                return Response.ok("{\"error\": \"Invalid subject\"}").build();
-			}
-
-			Session s = controllerRBAC.getSession(subject);
-			List<Role> ActiveRoles = new ArrayList<Role>();
-			List<Role> AvaliableRoles = new ArrayList<Role>();
-			if( s != null )
-			{
-				ActiveRoles = s.getListRoles();
-			}
-			
-			for( int i = 0; i < u.getRoles().size(); i++ )
-			{
-				Role role = u.getRoles().get(i);
-				if( !ActiveRoles.contains(role) )
-				{
-					AvaliableRoles.add(role);
-				}
-			}	
+            
+			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(domain);
 
 			String response = "{\"exportedroles\": [";
-			for( int i = 0; i < AvaliableRoles.size(); i++ )
+			for( int i = 0; i < exportedRoles.size(); i++ )
 			{
-				Role role = AvaliableRoles.get(i);
+				Role role = exportedRoles.get(i);
 				response += role.toString();
 				//se nao for o ultimo
-				if( i < AvaliableRoles.size() -1 )
+				if( i < exportedRoles.size() -1 )
 					response += ", ";
-			}
+			}	
 			response += "]}";
+			System.out.println(response);
+			response = new String(RSA.encrypt(response, externalDomain.getPublicKey()));	
 
             return Response.ok(response).build();
             
@@ -124,6 +112,11 @@ public class WalletResource {
 			
 			//Criar um papel temporario
 			String exportedRoleID = controllerRBAC.CreateExportedRole(domain);
+			
+//TEMPORARIO
+controllerRBAC.UserAssignment(u, controllerRBAC.getRole(exportedRoleID));
+//
+			
 			if( exportedRoleID == null )
 			{
 	            return Response.ok("{\"error\": \"The exported role cannot be created.\"}").build();

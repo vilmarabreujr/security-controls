@@ -36,7 +36,7 @@ public class RSA {
 		    		if( !exists )
 		    		{
 		    			KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
-		    			keyGen.initialize(1024);
+		    			keyGen.initialize(4096);
 		    			KeyPair key = keyGen.generateKeyPair();					        
 					
 		    			// Create files to store public and private key
@@ -67,7 +67,7 @@ public class RSA {
 		    }	
 	  }
 
-	  public static byte[] encrypt(String text, Key key) {
+	  public static String encrypt(String text, Key key) {
 		    byte[] cipherText = null;
 		    try {
 			    // get an RSA cipher object and print the provider
@@ -78,10 +78,12 @@ public class RSA {
 		    } catch (Exception e) {
 		    	e.printStackTrace();
 		    }
-		    return cipherText;
+		    
+		    return Base64.getEncoder().encodeToString(cipherText);
 	  }
 
-	  public static String decrypt(byte[] text, Key key) {
+	  public static String decrypt(String text, Key key) {
+		  	byte[] cipherText = Base64.getDecoder().decode(text);
 			byte[] dectyptedText = null;
 			try {
 				// get an RSA cipher object and print the provider
@@ -89,7 +91,7 @@ public class RSA {
 				
 				// decrypt the text using the key
 				cipher.init(Cipher.DECRYPT_MODE, key);
-				dectyptedText = cipher.doFinal(text);
+				dectyptedText = cipher.doFinal(cipherText);
 			
 			} catch (Exception ex) {
 				ex.printStackTrace();

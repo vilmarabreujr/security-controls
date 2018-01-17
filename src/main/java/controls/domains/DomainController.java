@@ -42,4 +42,13 @@ public class DomainController
 		}
 		return false;
 	}
+	public Domain getDomain(String domain)
+	{
+		for( Domain d : domains )
+		{
+			if( d.getId().equals(domain) )
+				return d;
+		}
+		return null;
+	}
 }

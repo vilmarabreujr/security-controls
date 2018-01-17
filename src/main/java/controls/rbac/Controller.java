@@ -374,5 +374,23 @@ public class Controller
     		return null;
         }
 	}
+	
+	public List<ExportedRole> getExportedRole(String domain)
+	{
+		List<ExportedRole> listExported = new ArrayList<ExportedRole>();
+		for( int i = 0; i < listRoles.size(); i++ )
+		{
+			Role current = listRoles.get(i);
+			if( current instanceof ExportedRole )
+			{
+				ExportedRole exported = (ExportedRole)current;
+				if( exported.getDomain().equals(domain))
+				{
+					listExported.add(exported);
+				}
+			}
+		}
+		return listExported;
+	}
 
 }

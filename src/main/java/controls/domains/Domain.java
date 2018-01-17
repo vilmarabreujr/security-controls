@@ -53,6 +53,6 @@ public class Domain {
 	}
 	public String toString()
 	{
-		return "{\"domain\": {\"id\": \"" + this.id + "\", \"name\": \"" + this.name + "\", \"publicKey\": \"" + this.publicKey + "\"}}";
+		return "{\"domain\": {\"id\": \"" + this.id + "\", \"name\": \"" + this.name + "\"}}";
 	}
 }
