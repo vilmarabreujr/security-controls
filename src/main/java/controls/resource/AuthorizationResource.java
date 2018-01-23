@@ -26,7 +26,8 @@ public class AuthorizationResource {
         try {
 
             String accessToken = service.requestAccessToken(authToken, callbackUri);
-            return Response.ok(new AuthorizationResponse(accessToken)).build();
+            String idToken = service.getCurrentIDToken();
+            return Response.ok(new AuthorizationResponse(accessToken, idToken)).build();
 
         } catch (OAuthSystemException | OAuthProblemException e) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(e).build();

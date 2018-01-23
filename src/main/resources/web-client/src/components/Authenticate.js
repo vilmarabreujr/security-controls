@@ -49,7 +49,7 @@ class Authenticate extends Component {
       )
     } else {
       return (
-        <a href={this.state.authUri}> <button> Authenticate on wso2 </button> </a>
+        <a href={this.state.authUri}> <button> Authenticate</button> </a>
       )
     }
   }

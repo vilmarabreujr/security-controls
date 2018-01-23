@@ -13,6 +13,7 @@ import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.StatusHolder;
 
 import controls.domains.DomainController;
+import util.JWT;
 
 import java.io.File;
 
@@ -43,11 +44,14 @@ public class PolicyTester {
     public static final String SERVER_PASSWORD = "admin";
 
     public static void main (String[] args) throws Exception {
-    	DomainController d = DomainController.getInstance();
+    	//DomainController d = DomainController.getInstance();
     	//PolicyManager manager = new PolicyManager();
     	//String s = manager.exportPolicy("doutorando", "admin");
         //String s = manager.DeletePolicy("DynamicPolicy1470854030");
     	//System.out.println(s);
+    	
+    	String id = "eyJ4NXQiOiJObUptT0dVeE16WmxZak0yWkRSaE5UWmxZVEExWXpkaFpUUmlPV0UwTldJMk0ySm1PVGMxWkEiLCJraWQiOiJkMGVjNTE0YTMyYjZmODhjMGFiZDEyYTI4NDA2OTliZGQzZGViYTlkIiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoiQVN1clJJbWNNTVBjM2ZOX1pNcENRdyIsInN1YiI6InZpbG1hciIsImF1ZCI6WyJ1NG1kUVliazF5STNkajFKUEZUN19rX2RfRjhhIl0sImF6cCI6InU0bWRRWWJrMXlJM2RqMUpQRlQ3X2tfZF9GOGEiLCJhdXRoX3RpbWUiOjE1MTY3MTUzODYsImlzcyI6Imh0dHBzOlwvXC9sb2NhbGhvc3Q6OTQ0M1wvb2F1dGgyXC90b2tlbiIsImV4cCI6MTUxNjcxODk4OCwiaWF0IjoxNTE2NzE1Mzg4fQ";
+    	JWT.ValidateToken(id);
 
     }
 

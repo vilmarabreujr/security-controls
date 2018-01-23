@@ -3,6 +3,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpConnection 
 {
@@ -45,5 +47,20 @@ public class HttpConnection
 
 		//print result
 		return response.toString();
+	}
+	
+	public static String getParameter(String query, String key)  
+	{  
+	    String[] params = query.split("&");  
+	    for (String param : params)  
+	    {  
+	        String name = param.split("=")[0];   
+	        if( name.equals(key) )
+	        {
+		        String value = param.split("=")[1]; 
+	        	return value;
+	        }
+	    }  
+	    return null;  
 	}
 }

@@ -7,13 +7,15 @@ public class AuthorizationResponse implements Serializable {
     private static final long serialVersionUID = 6204577444828537572L;
 
     private String accessToken;
+    private String idToken;
 
-    public AuthorizationResponse(String accessToken) {
+    public AuthorizationResponse(String accessToken, String idToken) {
         setAccessToken(accessToken);
+        setIDToken(idToken);
     }
 
     public AuthorizationResponse() {
-        this("");
+        this("", "");
     }
 
     public String getAccessToken() {
@@ -24,4 +26,11 @@ public class AuthorizationResponse implements Serializable {
         this.accessToken = accessToken;
     }
 
+    public String getIDToken() {
+        return idToken;
+    }
+
+    public void setIDToken(String idToken) {
+        this.idToken = idToken;
+    }
 }

@@ -11,7 +11,7 @@ public class AuthProperties {
      * If you want your conf.prp file in a different location please update 
      * it here and in the method initPrtopsFileLocation()
      */
-    private static String PROPS_FILE = "/.wso2Example/conf.prp";
+    private static String PROPS_FILE = "/.wso2Example/conf_sc.prp";
 
     private static AuthProperties inst;
 
@@ -28,6 +28,7 @@ public class AuthProperties {
     
     private String consumerKey;
     private String consumerSecret;
+    private String callBackURL;
 
     private AuthProperties() {
         initPropsFileLocation();
@@ -65,6 +66,7 @@ public class AuthProperties {
             
             consumerKey = props.getProperty("consumerKey");
             consumerSecret = props.getProperty("consumerSecret");
+            callBackURL = props.getProperty("callBackURL");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -115,6 +117,10 @@ public class AuthProperties {
 
     public String getConsumerSecret() {
         return consumerSecret;
+    }
+    
+    public String getCallBackURL() {
+        return callBackURL;
     }
 
 }

@@ -13,7 +13,8 @@ import util.AuthProperties;
 public class AuthorizationService {
     
     private static final String ACCESS_TOKEN_PARAM = "access_token";
-    
+    private static final String ID_TOKEN_PARAM = "id_token";
+    private String idToken;
     /**
      * 
      * @param consumerKey
@@ -24,13 +25,22 @@ public class AuthorizationService {
      * @throws OAuthSystemException
      * @throws OAuthProblemException
      */
+    
+    public String getCurrentIDToken()
+    {
+    	return idToken;
+    }
+    
     public String requestAccessToken(String authToken, String callbackUri) throws OAuthSystemException, 
                                                                                         OAuthProblemException {
 
         OAuthClientRequest accessRequest = getRequest(authToken, callbackUri);
         OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-        OAuthClientResponse oAuthResponse = oAuthClient.accessToken(accessRequest);
+        OAuthClientResponse oAuthResponse = oAuthClient.accessToken(accessRequest);        
         String accessToken = oAuthResponse.getParam(ACCESS_TOKEN_PARAM);
+        System.out.println(oAuthResponse.toString());
+        System.out.println(oAuthResponse.getParam("scope"));
+        idToken = oAuthResponse.getParam(ID_TOKEN_PARAM);
 
         return accessToken;
     }

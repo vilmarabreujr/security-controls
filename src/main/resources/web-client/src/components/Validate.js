@@ -115,7 +115,9 @@ export default class Validate extends Component {
         }
        `}</style>
 
-        <p>Your access token is <strong> { this.state.accessToken } </strong></p>
+        <p>Your access token is <strong> { this.state.accessToken } </strong></p>        
+
+        <p>Your id token is <strong> { this.state.accessToken } </strong></p>
 
         <button onClick={this.fetchValidateUri}> Validate Token </button>
 
@@ -132,7 +134,7 @@ export default class Validate extends Component {
             }
             else if (this.state.isValid) {
               return (
-                <strong className='valid' >The given token is valid</strong>
+                <strong className='valid' >The given token is valid!</strong>
               )
             } else {
               return (
