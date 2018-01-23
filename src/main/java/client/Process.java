@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import util.AuthProperties;
 import util.HttpConnection;
+import util.JWT;
 import util.RSA;
 
 public class Process 
@@ -160,6 +161,13 @@ public class Process
 		return response;
 	}
 	
+	public static String getUserInfo(String token) throws Exception
+	{
+		String url = "https://localhost:8443/securitycontrols/api/user-information?accessToken=" + token;
+		String response = HttpConnection.sendGet(url);
+		return response;
+	}
+	
 	public static String getActivateRoles(String token) throws Exception
 	{
 		String url = "https://localhost:8443/securitycontrols/api/rbac/activated?accessToken=" + token;
@@ -241,9 +249,11 @@ public class Process
 		
 		System.out.println("acessToken: " + accessToken);
 		System.out.println("idToken: " + idToken);
+
+		JWT.processToken(idToken);
 						
 		//TESTAR A PESQUISA DE PAPÉIS
-		System.out.println(validarToken(accessToken));
+		System.out.println("Userinfo: \t" + getUserInfo(accessToken));
 		System.out.println(getRoles(accessToken));
 		/*System.out.println(addActivateRoles(accessToken,role));
 		System.out.println("-- Exporting the role: " + role + " to the domain: " + domain+ " --");

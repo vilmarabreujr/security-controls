@@ -2,14 +2,15 @@ package util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPublicKey;
 
-import com.google.gdata.util.common.util.Base64;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.commons.codec.binary.Base64;
 
 public class JWT 
 {
@@ -48,4 +49,25 @@ public class JWT
             return false;
 		}		
 	}
+	
+	public static void processToken(String tokenString)
+	{
+		try
+		{
+			String[] list = tokenString.split("\\.");
+			byte[] header = Base64.decodeBase64(list[0]);
+			System.out.println("\t" + new String(header, "UTF-8"));
+
+			byte[] body = Base64.decodeBase64(list[1]);
+			System.out.println("\t" + new String(body, "UTF-8"));			
+
+			//ValidateToken(tokenString);					
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}		
+	}
+	
+	
 }
