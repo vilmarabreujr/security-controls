@@ -30,6 +30,11 @@ public class Domain {
 		return privateKey;
 	}
 	protected String name;
+	protected String configPath;
+	public String getConfigPath() {
+		return configPath;
+	}	
+	
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
@@ -37,6 +42,7 @@ public class Domain {
 	{
 		this.id = id;
 		this.name = name;
+		this.configPath = System.getenv("HOME") + "/." + id + "/";
 
     	String PRIVATE_KEY_FILE = id + "_private.key";
     	String PUBLIC_KEY_FILE =  id + "_public.key";		

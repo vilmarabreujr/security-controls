@@ -5,15 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+
+import controls.domains.Domain;
+import controls.domains.DomainController;
+import controls.rbac.Controller;
+
 public class AuthProperties {
 
     /**
      * If you want your conf.prp file in a different location please update 
      * it here and in the method initPrtopsFileLocation()
      */
-    private static String PROPS_FILE = "/.wso2Example/conf_sc.prp";
-
-    private static AuthProperties inst;
 
     private String scope;
     private String authzEndpoint;
@@ -29,25 +32,32 @@ public class AuthProperties {
     private String consumerKey;
     private String consumerSecret;
     private String callBackURL;
+    private String securityControlsURL;
 
-    private AuthProperties() {
-        initPropsFileLocation();
-        initProperties();
-    }
-
-    public static AuthProperties inst() {
-        if (inst == null)
-            inst = new AuthProperties();
-
-        return inst;
+    private AuthProperties(String file) {
+        String path = initPropsFileLocation(file);
+        initProperties(path);
     }
     
-    private void initPropsFileLocation() {
-        String homeDir = System.getenv("HOME");
-        PROPS_FILE = homeDir + PROPS_FILE;
+    public static AuthProperties init(Domain d) {
+    	String file = d.getConfigPath();
+        return new AuthProperties(file);
     }
     
-    private void initProperties() {
+    public static AuthProperties init(HttpServletRequest httpRequest) {
+		DomainController controller = DomainController.getInstance();
+    	Domain d = controller.getDomain(httpRequest);
+    	if( d == null )
+    		return null;
+        return init(d);
+    }
+    
+    private String initPropsFileLocation(String file) {
+        file = file + "conf.prp";
+        return file;
+    }
+    
+    private void initProperties(String PROPS_FILE) {
         Properties props = new Properties();
 
         try {
@@ -67,6 +77,7 @@ public class AuthProperties {
             consumerKey = props.getProperty("consumerKey");
             consumerSecret = props.getProperty("consumerSecret");
             callBackURL = props.getProperty("callBackURL");
+            securityControlsURL = props.getProperty("securityControlsURL");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -122,5 +133,7 @@ public class AuthProperties {
     public String getCallBackURL() {
         return callBackURL;
     }
-
+    public String getSecurityControlsURL() {
+        return securityControlsURL;
+    }
 }

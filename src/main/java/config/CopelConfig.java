@@ -4,10 +4,10 @@ import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
-@ApplicationPath("api")
-public class ServiceConfig extends ResourceConfig {
+@ApplicationPath("copel")
+public class CopelConfig extends ResourceConfig {
 
-    public ServiceConfig() {
+    public CopelConfig() {
         packages("com.fasterxml.jackson.jarxrs.json");
         packages("controls.resource");
     }

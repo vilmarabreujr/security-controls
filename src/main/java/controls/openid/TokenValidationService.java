@@ -18,6 +18,11 @@ public class TokenValidationService {
     
     private static final int TIMEOUT_IN_MILLIS = 15 * 1000;
     private String subject = "";
+    private AuthProperties props;
+    public TokenValidationService(AuthProperties _props)
+    {
+    	this.props = _props;
+    }
     /**
      * 
      * @param accessToken
@@ -67,7 +72,7 @@ public class TokenValidationService {
      * @throws AxisFault
      */
     private OAuth2TokenValidationServiceStub getValidationService() throws AxisFault {
-        String serviceURL = AuthProperties.inst().getTokenValidationEndpoint();
+        String serviceURL = props.getTokenValidationEndpoint();
         OAuth2TokenValidationServiceStub stub = new OAuth2TokenValidationServiceStub(null, serviceURL);
         return setupValidationService(stub);
     }
@@ -78,8 +83,6 @@ public class TokenValidationService {
      * @return receives a non prepared stub and set up it
      */
     private OAuth2TokenValidationServiceStub setupValidationService(OAuth2TokenValidationServiceStub stub) {
-        AuthProperties props = AuthProperties.inst();
-
         ServiceClient client = stub._getServiceClient();
         Options options = client.getOptions();
 

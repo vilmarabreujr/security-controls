@@ -1,20 +1,21 @@
 package util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
+
+import controls.domains.Domain;
 
 public class XACMLProperties 
 {
-    private static String PROPS_FILE = "/.wso2Example/xacml.prp";
-    public static final String TRUST_STORE_PATH = "trustStore";
-    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-    public static final String SERVER_URL = "identityServerUrl";
-    public static final String SERVER_USER_NAME = "identityServerUsername";
-    public static final String SERVER_PASSWORD = "identityServerPassword";
-    public static final String POLICY_PATH = "policyPath";	
+    private String PROPS_FILE = "xacml.prp";
+    public final String TRUST_STORE_PATH = "trustStore";
+    public final String TRUST_STORE_PASSWORD = "trustStorePassword";
+    public final String SERVER_URL = "identityServerUrl";
+    public final String SERVER_USER_NAME = "identityServerUsername";
+    public final String SERVER_PASSWORD = "identityServerPassword";
+    public final String POLICY_PATH = "policyPath";	
+    public final String DOMAIN = "domain";	
     private static XACMLProperties inst;
 	
 	private String TrustStore;
@@ -22,6 +23,7 @@ public class XACMLProperties
 	private String ServerUrl;
 	private String ServerUsername;
 	private String ServerPassword;
+	private String Domain;
 	
     public String getTrustStore() {
     	return TrustStore;
@@ -43,15 +45,18 @@ public class XACMLProperties
         return ServerPassword;
     }
     
-    private XACMLProperties() {
-        String homeDir = System.getenv("HOME");
-        PROPS_FILE = homeDir + PROPS_FILE;
-        loadConfigProperties(PROPS_FILE);
+    public String getDomain(){
+        return Domain;
     }
     
-    public static XACMLProperties inst(){
+    private XACMLProperties(String path) {
+        path = path + PROPS_FILE;
+        loadConfigProperties(path);
+    }
+    
+    public static XACMLProperties inst(Domain d){
         if (inst == null)
-            inst = new XACMLProperties();
+            inst = new XACMLProperties(d.getConfigPath());
 
         return inst;
     }
@@ -63,25 +68,29 @@ public class XACMLProperties
             {
                 Properties properties = new Properties();
                 properties.load(new FileInputStream(file));
-                if(properties != null  && properties.getProperty(XACMLProperties.TRUST_STORE_PATH) != null)
+                if(properties != null  && properties.getProperty(TRUST_STORE_PATH) != null)
                 {
-                    this.TrustStore = properties.getProperty(XACMLProperties.TRUST_STORE_PATH);
+                    this.TrustStore = properties.getProperty(TRUST_STORE_PATH);
                 }
-                if(properties != null  && properties.getProperty(XACMLProperties.TRUST_STORE_PASSWORD) != null)
+                if(properties != null  && properties.getProperty(TRUST_STORE_PASSWORD) != null)
                 {
-                    this.TrustStorePassword = properties.getProperty(XACMLProperties.TRUST_STORE_PASSWORD);
+                    this.TrustStorePassword = properties.getProperty(TRUST_STORE_PASSWORD);
                 }
-                if(properties != null  && properties.getProperty(XACMLProperties.SERVER_URL) != null)
+                if(properties != null  && properties.getProperty(SERVER_URL) != null)
                 {
-                    this.ServerUrl = properties.getProperty(XACMLProperties.SERVER_URL);
+                    this.ServerUrl = properties.getProperty(SERVER_URL);
                 }
-                if(properties != null  && properties.getProperty(XACMLProperties.SERVER_USER_NAME) != null)
+                if(properties != null  && properties.getProperty(SERVER_USER_NAME) != null)
                 {
-                    this.ServerUsername = properties.getProperty(XACMLProperties.SERVER_USER_NAME);
+                    this.ServerUsername = properties.getProperty(SERVER_USER_NAME);
                 }
-                if(properties != null  && properties.getProperty(XACMLProperties.SERVER_PASSWORD) != null)
+                if(properties != null  && properties.getProperty(SERVER_PASSWORD) != null)
                 {
-                    this.ServerPassword = properties.getProperty(XACMLProperties.SERVER_PASSWORD);
+                    this.ServerPassword = properties.getProperty(SERVER_PASSWORD);
+                }
+                if(properties != null  && properties.getProperty(DOMAIN) != null)
+                {
+                    this.Domain = properties.getProperty(DOMAIN);
                 }
             }
         } 

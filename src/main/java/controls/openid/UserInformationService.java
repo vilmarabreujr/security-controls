@@ -9,7 +9,11 @@ import java.net.URL;
 import util.AuthProperties;
 
 public class UserInformationService {
-
+	private AuthProperties props;
+    public UserInformationService(AuthProperties _props)
+    {
+    	this.props = _props;
+    }
     /**
      * 
      * @param accessToken
@@ -17,7 +21,7 @@ public class UserInformationService {
      * @throws IOException
      */
     public String getUserInformation(String accessToken) throws IOException {
-        String endpoint = AuthProperties.inst().getUserInformationEndpoint();
+        String endpoint = props.getUserInformationEndpoint();
         
         URL url = new URL(endpoint);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

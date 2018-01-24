@@ -11,12 +11,13 @@ import java.util.Base64;
 
 import org.json.JSONObject;
 
+import controls.domains.Domain;
+import controls.domains.DomainController;
 import util.AuthProperties;
 import util.HttpConnection;
 import util.JWT;
-import util.RSA;
 
-public class Process 
+public class FURNAS_SCADA 
 {
 	static {
 	    javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
@@ -28,9 +29,18 @@ public class Process
 	        }
 	    });
 	}
-	public static String Authenticate(String user, String password) throws Exception
+	public static void init()
 	{
-		AuthProperties prop = AuthProperties.inst();
+		String domainName = "furnas";
+		DomainController domains = DomainController.getInstance();
+		Domain d = domains.getDomain(domainName);
+		prop = AuthProperties.init(d);
+	}
+	public static AuthProperties prop;
+	
+	
+	public static String Authenticate(String user, String password) throws Exception
+	{		
 		String clientID = prop.getConsumerKey();
 		String clientPWD = prop.getConsumerSecret();
 		URL obj = new URL(prop.getTokenEndpoint());
@@ -62,7 +72,7 @@ public class Process
 		}
 		in.close();
 
-		String jsonString = response.toString();		
+		String jsonString = response.toString();
 		JSONObject jObject = new JSONObject(jsonString);		
 		//print result
 		return jObject.getString("access_token");
@@ -70,7 +80,6 @@ public class Process
 	
 	public static String getCode(String authenticationCode) throws Exception
 	{
-		AuthProperties prop = AuthProperties.inst();
 		String clientID = prop.getConsumerKey();
 		String callBackURL = prop.getCallBackURL();
 		URL obj = new URL(prop.getAuthzEndpoint());
@@ -103,6 +112,7 @@ public class Process
 
 		//print result
 		String location = con.getHeaderField("Location");
+		System.out.println(location);
 		URI uri = new URI(location);		
 		String code = HttpConnection.getParameter(uri.getQuery(), "code");		
 		return code;
@@ -110,7 +120,6 @@ public class Process
 	
 	public static String getTokens(String code) throws Exception
 	{
-		AuthProperties prop = AuthProperties.inst();
 		String clientID = prop.getConsumerKey();
 		String clientPWD = prop.getConsumerSecret();
 		String callBackURL = prop.getCallBackURL();
@@ -149,98 +158,99 @@ public class Process
 	
 	public static String validarToken(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/validate-token?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "validate-token?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String getRoles(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "rbac?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String getUserInfo(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/user-information?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "user-information?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String getActivateRoles(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/activated?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String addActivateRoles(String token, String roleID) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/activated?accessToken=" + token + "&role=" + roleID;
+		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token + "&role=" + roleID;
 		String response = HttpConnection.sendPost(url);
 		return response;
 	}
 	
 	public static String dropActivateRoles(String token, String roleID) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/activated?accessToken=" + token + "&role=" + roleID;
+		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token + "&role=" + roleID;
 		String response = HttpConnection.sendDelete(url);
 		return response;
 	}
 	
 	public static String getConstraints(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/constraints?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String addConstraints(String token, String roleA, String roleB) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
+		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
 		String response = HttpConnection.sendPost(url);
 		return response;
 	}
 	
 	public static String dropConstraints(String token, String roleA, String roleB) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
+		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
 		String response = HttpConnection.sendDelete(url);
 		return response;
 	}
 	
 	public static String requestAccess(String token, String resource, String action) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/access-control?accessToken=" + token + "&resource=" + resource + "&action=" + action;
+		String url = prop.getSecurityControlsURL() + "access-control?accessToken=" + token + "&resource=" + resource + "&action=" + action;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static String exportRole(String token, String role, String domain) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/wallet?accessToken=" + token + "&role=" + role+ "&domain=" + domain;
+		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&role=" + role+ "&domain=" + domain;
 		String response = HttpConnection.sendPost(url);
 		return response;
 	}	
 	
 	public static String getExportedRoles(String token, String domain) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/wallet?accessToken=" + token + "&domain=" + domain;
+		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&domain=" + domain;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 
 	public static String getTrustedDomains(String token) throws Exception
 	{
-		String url = "https://localhost:8443/securitycontrols/api/domain?accessToken=" + token;
+		String url = prop.getSecurityControlsURL() + "domain?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
 	
 	public static void main(String[] args) throws Exception 
 	{
-		String authenticationCode = Authenticate("vilmar", "vilmar");
+		init();
+		String authenticationCode = Authenticate("andreia@andreia.com", "andreia");
 		String code = getCode(authenticationCode);
 		String tokens = getTokens(code);
 		JSONObject jTokens = new JSONObject(tokens);	

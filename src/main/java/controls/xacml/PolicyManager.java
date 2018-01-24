@@ -21,6 +21,7 @@ import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedStatusHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.StatusHolder;
 
+import controls.domains.Domain;
 import util.XACMLProperties;
 
 public class PolicyManager 
@@ -33,11 +34,11 @@ public class PolicyManager
 	private String resourceAttribute = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
 	
 	
-	public PolicyManager() throws Exception
+	public PolicyManager(Domain d) throws Exception
 	{
 		policyAdminStub = null;
 		authCookie = null;
-		properties = XACMLProperties.inst();
+		properties = XACMLProperties.inst(d);
 		policyAdminStub = getStub();
 	}
 	

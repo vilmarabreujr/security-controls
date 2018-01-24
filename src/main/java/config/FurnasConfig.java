@@ -4,10 +4,10 @@ import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
-@ApplicationPath("api")
-public class ServiceConfig extends ResourceConfig {
+@ApplicationPath("furnas")
+public class FurnasConfig extends ResourceConfig {
 
-    public ServiceConfig() {
+    public FurnasConfig() {
         packages("com.fasterxml.jackson.jarxrs.json");
         packages("controls.resource");
     }

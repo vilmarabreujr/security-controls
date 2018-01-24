@@ -1,40 +1,62 @@
 package controls.resource;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import controls.domains.Domain;
+import controls.domains.DomainController;
 import controls.openid.TokenValidationService;
 import controls.response.TokenValidationResponse;
+import util.AuthProperties;
 import controls.rbac.*;
 
 @Path("rbac")
-public class RBACResource {
-	private static Controller controllerRBAC;
+public class RBACResource 
+{
+	private static Map<Domain, Controller> controllers;
 
-	public static Controller getControllerRBAC()
+	public static Controller getControllerRBAC(HttpServletRequest httpRequest)
 	{
+		DomainController controller = DomainController.getInstance();
+    	Domain d = controller.getDomain(httpRequest);
+    	if( d == null )
+    		return null;
+    	Controller controllerRBAC = controllers.get(d);
 		return controllerRBAC;
 	}
 	
 	public RBACResource() {
-		if( controllerRBAC == null )
+		if( controllers == null )
 		{
-			controllerRBAC = new Controller(true);
+			controllers = new HashMap<Domain, Controller>();
+			DomainController domains = DomainController.getInstance();
+			for( Domain d : domains.getDomains() )
+			{
+				Controller controllerRBAC = new Controller(d);
+				controllers.put(d, controllerRBAC);
+			}
+			
 		}
 	}
-
+	
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAvaliableRoles(@QueryParam("accessToken") String token) {
-        TokenValidationService service = new TokenValidationService();
+    public Response getAvaliableRoles(@QueryParam("accessToken") String token,@Context HttpServletRequest httpRequest) {		
+		
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -42,7 +64,7 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
@@ -88,8 +110,8 @@ public class RBACResource {
     @GET
     @Path("activated")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getActivateRoles(@QueryParam("accessToken") String token) {
-        TokenValidationService service = new TokenValidationService();
+    public Response getActivateRoles(@QueryParam("accessToken") String token,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -97,8 +119,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -131,8 +153,8 @@ public class RBACResource {
     @POST
     @Path("activated")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response AddActiveRole(@QueryParam("accessToken") String token, @QueryParam("role") String roleID) {
-        TokenValidationService service = new TokenValidationService();
+    public Response AddActiveRole(@QueryParam("accessToken") String token, @QueryParam("role") String roleID,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -140,8 +162,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -169,8 +191,8 @@ public class RBACResource {
     @DELETE
     @Path("activated")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response DropActiveRole(@QueryParam("accessToken") String token, @QueryParam("role") String roleID) {
-        TokenValidationService service = new TokenValidationService();
+    public Response DropActiveRole(@QueryParam("accessToken") String token, @QueryParam("role") String roleID,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -178,8 +200,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -205,8 +227,8 @@ public class RBACResource {
     @GET
     @Path("constraints")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConstraints(@QueryParam("accessToken") String token) {
-        TokenValidationService service = new TokenValidationService();
+    public Response getConstraints(@QueryParam("accessToken") String token,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -214,8 +236,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -243,8 +265,8 @@ public class RBACResource {
     @POST
     @Path("constraints")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response AddDynamicSepartionOfDuty(@QueryParam("accessToken") String token, @QueryParam("roleA") String roleA, @QueryParam("roleB") String roleB) {
-        TokenValidationService service = new TokenValidationService();
+    public Response AddDynamicSepartionOfDuty(@QueryParam("accessToken") String token, @QueryParam("roleA") String roleA, @QueryParam("roleB") String roleB,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -252,8 +274,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -278,8 +300,8 @@ public class RBACResource {
     @DELETE
     @Path("constraints")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response RemoveDynamicSepartionOfDuty(@QueryParam("accessToken") String token, @QueryParam("roleA") String roleA, @QueryParam("roleB") String roleB) {
-        TokenValidationService service = new TokenValidationService();
+    public Response RemoveDynamicSepartionOfDuty(@QueryParam("accessToken") String token, @QueryParam("roleA") String roleA, @QueryParam("roleB") String roleB,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -287,8 +309,8 @@ public class RBACResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{

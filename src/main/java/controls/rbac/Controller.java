@@ -12,6 +12,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
 
+import controls.domains.Domain;
 import util.XACMLProperties;
 
 public class Controller 
@@ -22,7 +23,7 @@ public class Controller
 	private List<Constraint> dynamicConstraints;
 	private RemoteUserStoreManagerServiceStub adminStub;
 	
-	public Controller(boolean loadWSo2)
+	public Controller(Domain d)
 	{
 		listUsers = new ArrayList<User>();
 		listRoles = new ArrayList<Role>();
@@ -30,11 +31,8 @@ public class Controller
 		dynamicConstraints = new ArrayList<Constraint>();
 		adminStub = null;
 
-		if( loadWSo2 ) 
-		{
-			XACMLProperties properties = XACMLProperties.inst();
-			LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword());
-		}
+		XACMLProperties properties = XACMLProperties.inst(d);
+		LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword(), properties.getDomain());
 	}
 	
 	
@@ -135,18 +133,18 @@ public class Controller
         }
 	}
 	
-	public boolean LoadWSo2(String serviceEndPoint, String adminUser, String adminPassword)
+	public boolean LoadWSo2(String serviceEndPoint, String adminUser, String adminPassword, String domain)
 	{
         try 
         {
+        	
         	carregarStub(serviceEndPoint, adminUser, adminPassword);
 
             String[] users = adminStub.listUsers("*", 10000);
             for( int i = 0; i < users.length; i++ )
             {
             	String userString = users[i];
-            	System.out.println(userString);
-            	User user = new User(userString);
+            	User user = new User(userString + "@" + domain);
             	listUsers.add(user);
             	//Search user roles
             	String[] roles = adminStub.getRoleListOfUser(userString);

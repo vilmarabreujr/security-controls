@@ -3,6 +3,8 @@ package controls.domains;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class DomainController 
 {
 	private static DomainController inst;
@@ -26,12 +28,10 @@ public class DomainController
 	}	
 	public void init()
 	{
-		Domain d1 = new Domain("pucpr", "PUCPR");
-		Domain d2 = new Domain("ufpr", "UFPR");
-		Domain d3 = new Domain("utfpr", "UTFPR");
+		Domain d1 = new Domain("copel", "COPEL");
+		Domain d2 = new Domain("furnas", "FURNAS");
 		domains.add(d1);
 		domains.add(d2);
-		domains.add(d3);
 	}
 	public boolean isTrustDomain(String domain)
 	{
@@ -51,4 +51,20 @@ public class DomainController
 		}
 		return null;
 	}
+
+	public Domain getDomain(HttpServletRequest httpRequest)
+	{
+		String uri = httpRequest.getRequestURI();
+		String context = httpRequest.getContextPath();
+		uri = uri.replaceAll(context, "");
+		System.out.println(uri);
+		String domain = uri.split("/")[1];
+		for( Domain d : domains )
+		{
+			if( d.getId().equals(domain) )
+				return d;
+		}
+		return null;
+	}
+	
 }

@@ -15,6 +15,12 @@ public class AuthorizationService {
     private static final String ACCESS_TOKEN_PARAM = "access_token";
     private static final String ID_TOKEN_PARAM = "id_token";
     private String idToken;
+    private AuthProperties props;
+    public AuthorizationService(AuthProperties _props)
+    {
+    	this.props = _props;
+    }
+    
     /**
      * 
      * @param consumerKey
@@ -55,8 +61,6 @@ public class AuthorizationService {
      * @throws OAuthSystemException
      */
     private OAuthClientRequest getRequest(String authToken, String callbackUri) throws OAuthSystemException {
-        AuthProperties props = AuthProperties.inst();
-
         return OAuthClientRequest.tokenLocation(props.getTokenEndpoint())
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
                 .setClientId(props.getConsumerKey())

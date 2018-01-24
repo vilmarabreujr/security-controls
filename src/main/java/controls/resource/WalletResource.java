@@ -1,13 +1,16 @@
 package controls.resource;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -21,22 +24,41 @@ import controls.rbac.Session;
 import controls.rbac.User;
 import controls.response.TokenValidationResponse;
 import controls.xacml.PolicyManager;
+import util.AuthProperties;
 import util.RSA;
 
 @Path("wallet")
 public class WalletResource {
-	private static PolicyManager policyManager;
-	public WalletResource() throws Exception {		
-		if( policyManager == null )
+	private static Map<Domain, PolicyManager> policyManagers;
+	public WalletResource() throws Exception {				
+		if( policyManagers == null )
 		{
-			policyManager = new PolicyManager();
+			policyManagers = new HashMap<Domain, PolicyManager>();
+			DomainController domains = DomainController.getInstance();
+			for( Domain d : domains.getDomains() )
+			{
+				PolicyManager controllerRBAC = new PolicyManager(d);
+				policyManagers.put(d, controllerRBAC);
+			}
+			
 		}
 	}
 
+	private PolicyManager getPolicyManager(HttpServletRequest httpRequest)
+	{
+		DomainController controller = DomainController.getInstance();
+    	Domain d = controller.getDomain(httpRequest);
+    	if( d == null )
+    		return null;
+    	PolicyManager policyManager = policyManagers.get(d);
+		return policyManager;
+	}
+	
+
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getExportedRoles(@QueryParam("accessToken") String token, @QueryParam("domain") String domain) {
-        TokenValidationService service = new TokenValidationService();
+    public Response getExportedRoles(@QueryParam("accessToken") String token, @QueryParam("domain") String domain,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -49,7 +71,7 @@ public class WalletResource {
 			{
 	            return Response.ok("{\"error\": \"The domain is not trustable.\"}").build();
 			}
-            Controller controllerRBAC = RBACResource.getControllerRBAC();
+            Controller controllerRBAC = RBACResource.getControllerRBAC(httpRequest);
             
 			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(domain);
 
@@ -75,8 +97,8 @@ public class WalletResource {
 	
 	@POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response exportRole(@QueryParam("accessToken") String token, @QueryParam("role") String role, @QueryParam("domain") String domain) {
-        TokenValidationService service = new TokenValidationService();
+    public Response exportRole(@QueryParam("accessToken") String token, @QueryParam("role") String role, @QueryParam("domain") String domain,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
@@ -84,8 +106,7 @@ public class WalletResource {
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
             
             String subject = service.getSubject();
-            subject = subject.replace("@carbon.super", "");
-            Controller controllerRBAC = RBACResource.getControllerRBAC();
+            Controller controllerRBAC = RBACResource.getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -122,6 +143,7 @@ controllerRBAC.UserAssignment(u, controllerRBAC.getRole(exportedRoleID));
 	            return Response.ok("{\"error\": \"The exported role cannot be created.\"}").build();
 			}
 			//Exportar a politica
+			PolicyManager policyManager = getPolicyManager(httpRequest);
 			String policyID = policyManager.exportPolicy(role, exportedRoleID);
 			if( policyID == null )
 			{

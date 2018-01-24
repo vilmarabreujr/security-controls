@@ -14,6 +14,11 @@ import util.NameValuePair;
 public class AuthenticationService {
     
     private static final String AUTHZ_GRANT_TYPE = "code";
+    private AuthProperties props;
+    public AuthenticationService(AuthProperties _props)
+    {
+    	this.props = _props;
+    }
     
     /**
      * 
@@ -35,9 +40,7 @@ public class AuthenticationService {
      * @return configured request
      * @throws OAuthSystemException
      */
-    private OAuthClientRequest getRequest(String callbackUri) throws OAuthSystemException {
-        AuthProperties props = AuthProperties.inst();
-        
+    private OAuthClientRequest getRequest(String callbackUri) throws OAuthSystemException {        
         return OAuthClientRequest.authorizationLocation(props.getAuthzEndpoint())
         .setClientId(props.getConsumerKey())
         .setRedirectURI(callbackUri)
@@ -51,9 +54,7 @@ public class AuthenticationService {
      * @param callbackUri
      * @return the logout URL built manually
      */
-    public String buildLogoutUri(String callbackUri) {
-        AuthProperties props = AuthProperties.inst();
-        
+    public String buildLogoutUri(String callbackUri) {        
         List<NameValuePair> params = new ArrayList<>();
         params.add(new NameValuePair("slo", "true"));
         params.add(new NameValuePair("spEntityID", props.getServiceProviderName()));

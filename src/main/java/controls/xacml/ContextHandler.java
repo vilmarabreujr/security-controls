@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 
+import controls.domains.Domain;
 import util.XACMLProperties;
 
 
@@ -19,9 +20,9 @@ public class ContextHandler
 {
 	private String authCookie = null;
 	private XACMLProperties properties;
-	public ContextHandler() throws Exception
+	public ContextHandler(Domain d) throws Exception
 	{
-		properties = XACMLProperties.inst();
+		properties = XACMLProperties.inst(d);
 	}
 	
 	public boolean ValidateResponse(String xmlString)
