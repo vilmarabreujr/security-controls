@@ -16,7 +16,6 @@ public class XACMLProperties
     public final String SERVER_PASSWORD = "identityServerPassword";
     public final String POLICY_PATH = "policyPath";	
     public final String DOMAIN = "domain";	
-    private static XACMLProperties inst;
 	
 	private String TrustStore;
 	private String TrustStorePassword;
@@ -54,11 +53,8 @@ public class XACMLProperties
         loadConfigProperties(path);
     }
     
-    public static XACMLProperties inst(Domain d){
-        if (inst == null)
-            inst = new XACMLProperties(d.getConfigPath());
-
-        return inst;
+    public static XACMLProperties init(Domain d){
+        return new XACMLProperties(d.getConfigPath());
     }
     
     public void loadConfigProperties(String file) {

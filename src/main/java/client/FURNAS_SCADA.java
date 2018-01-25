@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import controls.domains.Domain;
 import controls.domains.DomainController;
+import controls.rbac.Controller;
 import util.AuthProperties;
 import util.HttpConnection;
 import util.JWT;
@@ -35,8 +36,13 @@ public class FURNAS_SCADA
 		DomainController domains = DomainController.getInstance();
 		Domain d = domains.getDomain(domainName);
 		prop = AuthProperties.init(d);
+		
+		String remoteDomainName = "copel";
+		d = domains.getDomain(remoteDomainName);
+		propRemote = AuthProperties.init(d);
 	}
 	public static AuthProperties prop;
+	public static AuthProperties propRemote;
 	
 	
 	public static String Authenticate(String user, String password) throws Exception
@@ -76,7 +82,8 @@ public class FURNAS_SCADA
 		JSONObject jObject = new JSONObject(jsonString);		
 		//print result
 		return jObject.getString("access_token");
-	}
+	}	
+	
 	
 	public static String getCode(String authenticationCode) throws Exception
 	{
@@ -136,7 +143,7 @@ public class FURNAS_SCADA
 		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8"); 
 		con.setDoOutput(true);
 		
-		String str =  "grant_type=authorization_code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&code=" + code + "&scope=openid";
+		String str =  "grant_type=authorization_code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&code=" + code + "&scope=" + prop.getScope();
 		byte[] outputInBytes = str.getBytes("UTF-8");
 		OutputStream os = con.getOutputStream();
 		os.write( outputInBytes );    
@@ -151,7 +158,7 @@ public class FURNAS_SCADA
 			response.append(inputLine);
 		}
 		in.close();
-
+		System.out.println(response);
 		//print result
 		return response.toString();
 	}
@@ -168,6 +175,45 @@ public class FURNAS_SCADA
 		String url = prop.getSecurityControlsURL() + "rbac?accessToken=" + token;
 		String response = HttpConnection.sendGet(url);
 		return response;
+	}
+	
+	public static String TESTEEEE(String user, String password) throws Exception
+	{
+		String clientID = propRemote.getConsumerKey();
+		String clientPWD = propRemote.getConsumerSecret();
+		URL obj = new URL(propRemote.getTokenEndpoint());
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("POST");
+
+		//add request header
+		//con.setRequestProperty("User-Agent", "Mozilla/5.0");
+		String encoded = Base64.getEncoder().encodeToString((clientID+":"+clientPWD).getBytes(StandardCharsets.UTF_8));
+		con.setRequestProperty("Authorization", "Basic " + encoded);
+		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8"); 
+		con.setDoOutput(true);
+		
+		String str =  "grant_type=password&username=" + user + "&password=" + password;
+		byte[] outputInBytes = str.getBytes("UTF-8");
+		OutputStream os = con.getOutputStream();
+		os.write( outputInBytes );    
+		os.close();
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		String jsonString = response.toString();
+		JSONObject jObject = new JSONObject(jsonString);		
+		//print result
+		return jObject.getString("access_token");
 	}
 	
 	public static String getUserInfo(String token) throws Exception
@@ -250,7 +296,7 @@ public class FURNAS_SCADA
 	public static void main(String[] args) throws Exception 
 	{
 		init();
-		String authenticationCode = Authenticate("andreia@andreia.com", "andreia");
+		String authenticationCode = Authenticate("andreia@furnas.com", "andreia");
 		String code = getCode(authenticationCode);
 		String tokens = getTokens(code);
 		JSONObject jTokens = new JSONObject(tokens);	
@@ -265,6 +311,27 @@ public class FURNAS_SCADA
 		//TESTAR A PESQUISA DE PAPÉIS
 		System.out.println("Userinfo: \t" + getUserInfo(accessToken));
 		System.out.println(getRoles(accessToken));
+		
+		prop = propRemote;
+		
+		/*authenticationCode = Authenticate("andreia@furnas.com", "andreia");
+		code = getCode(authenticationCode);
+		tokens = getTokens(code);
+		jTokens = new JSONObject(tokens);	
+		accessToken = jTokens.getString("access_token");
+		idToken = jTokens.getString("id_token");
+		
+		System.out.println("acessToken: " + accessToken);
+		System.out.println("idToken: " + idToken);
+
+		JWT.processToken(idToken);
+						
+		//TESTAR A PESQUISA DE PAPÉIS
+		System.out.println("Userinfo: \t" + getUserInfo(accessToken));*/
+		System.out.println(getRoles(accessToken));
+		
+		
+
 		/*System.out.println(addActivateRoles(accessToken,role));
 		System.out.println("-- Exporting the role: " + role + " to the domain: " + domain+ " --");
 		System.out.println(exportRole(accessToken, role,domain));		

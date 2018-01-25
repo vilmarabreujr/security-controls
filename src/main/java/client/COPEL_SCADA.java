@@ -94,7 +94,7 @@ public class COPEL_SCADA
 		con.setDoOutput(true);
 		con.setInstanceFollowRedirects(false);
 		
-		String str =  "response_type=code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&scope=openid";
+		String str =  "response_type=code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&scope=" + prop.getScope();
 		byte[] outputInBytes = str.getBytes("UTF-8");
 		OutputStream os = con.getOutputStream();
 		os.write( outputInBytes );    
@@ -109,7 +109,7 @@ public class COPEL_SCADA
 			response.append(inputLine);
 		}
 		in.close();
-
+		System.out.println(response);
 		//print result
 		String location = con.getHeaderField("Location");
 		System.out.println(location);
@@ -151,7 +151,7 @@ public class COPEL_SCADA
 			response.append(inputLine);
 		}
 		in.close();
-
+		System.out.println(response);
 		//print result
 		return response.toString();
 	}

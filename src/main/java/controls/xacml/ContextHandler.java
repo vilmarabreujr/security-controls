@@ -22,7 +22,7 @@ public class ContextHandler
 	private XACMLProperties properties;
 	public ContextHandler(Domain d) throws Exception
 	{
-		properties = XACMLProperties.inst(d);
+		properties = XACMLProperties.init(d);
 	}
 	
 	public boolean ValidateResponse(String xmlString)

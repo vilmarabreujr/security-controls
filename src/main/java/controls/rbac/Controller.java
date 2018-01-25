@@ -31,7 +31,7 @@ public class Controller
 		dynamicConstraints = new ArrayList<Constraint>();
 		adminStub = null;
 
-		XACMLProperties properties = XACMLProperties.inst(d);
+		XACMLProperties properties = XACMLProperties.init(d);
 		LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword(), properties.getDomain());
 	}
 	
@@ -137,7 +137,7 @@ public class Controller
 	{
         try 
         {
-        	
+        	System.out.println("domain carregado: " + domain);
         	carregarStub(serviceEndPoint, adminUser, adminPassword);
 
             String[] users = adminStub.listUsers("*", 10000);

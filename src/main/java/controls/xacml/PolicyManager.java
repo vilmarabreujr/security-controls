@@ -38,7 +38,7 @@ public class PolicyManager
 	{
 		policyAdminStub = null;
 		authCookie = null;
-		properties = XACMLProperties.inst(d);
+		properties = XACMLProperties.init(d);
 		policyAdminStub = getStub();
 	}
 	

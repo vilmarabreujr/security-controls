@@ -57,7 +57,6 @@ public class DomainController
 		String uri = httpRequest.getRequestURI();
 		String context = httpRequest.getContextPath();
 		uri = uri.replaceAll(context, "");
-		System.out.println(uri);
 		String domain = uri.split("/")[1];
 		for( Domain d : domains )
 		{
