@@ -19,8 +19,8 @@ public class UserInformationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserInformation(@QueryParam("accessToken") String accessToken,@Context HttpServletRequest httpRequest) {
-        UserInformationService service = new UserInformationService(AuthProperties.init(httpRequest));
+    public Response getUserInformation(@QueryParam("accessToken") String accessToken) {
+        UserInformationService service = new UserInformationService(AuthProperties.init());
         
         try {
             String response = service.getUserInformation(accessToken);

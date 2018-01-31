@@ -52,6 +52,11 @@ public class AuthProperties {
         return init(d);
     }
     
+    public static AuthProperties init() {
+		String file = "/home/aluno/.wso2/";
+        return new AuthProperties(file);
+    }
+    
     private String initPropsFileLocation(String file) {
         file = file + "conf.prp";
         return file;

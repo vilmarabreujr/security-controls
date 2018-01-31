@@ -31,6 +31,7 @@ public class AccessControlResource {
         try {
         	DomainController domains = DomainController.getInstance();
         	Domain d = domains.getDomain(httpRequest);
+        	System.out.println(d.getId());
             ContextHandler contextHandler = new ContextHandler(d);
         	if( !contextHandler.ValidateRequest(token, resource, action) )
     		{

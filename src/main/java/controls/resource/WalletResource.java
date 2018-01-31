@@ -24,8 +24,8 @@ import controls.rbac.Session;
 import controls.rbac.User;
 import controls.response.TokenValidationResponse;
 import controls.xacml.PolicyManager;
+import crypto.RSA;
 import util.AuthProperties;
-import util.RSA;
 
 @Path("wallet")
 public class WalletResource {

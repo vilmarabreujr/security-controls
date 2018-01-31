@@ -77,7 +77,11 @@ public class ContextHandler
                 auth.setPreemptiveAuthentication(true);
                 option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
             }
+            System.out.println(serviceEndPoint);
+            System.out.println(properties.getServerUsername());
+            System.out.println(properties.getServerPassword());
             String decision = entitlementServiceStub.getDecisionByAttributes(token, resource, action, null);
+            System.out.println(decision);
             System.out.println(XML.toJSONObject(decision).toString());
             authCookie = (String) entitlementServiceStub._getServiceClient().getServiceContext().getProperty(HTTPConstants.COOKIE_STRING);     
             return ValidateResponse(decision);

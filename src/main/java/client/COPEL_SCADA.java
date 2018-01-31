@@ -109,7 +109,6 @@ public class COPEL_SCADA
 			response.append(inputLine);
 		}
 		in.close();
-		System.out.println(response);
 		//print result
 		String location = con.getHeaderField("Location");
 		System.out.println(location);
@@ -265,7 +264,17 @@ public class COPEL_SCADA
 		//TESTAR A PESQUISA DE PAPÉIS
 		System.out.println("Userinfo: \t" + getUserInfo(accessToken));
 		System.out.println(getRoles(accessToken));
-		/*System.out.println(addActivateRoles(accessToken,role));
+		String activeRole = "enginner";
+		System.out.println(addActivateRoles(accessToken,activeRole));
+		System.out.println(getTrustedDomains(accessToken));
+		System.out.println(getActivateRoles(accessToken));	
+		System.out.println(requestAccess(accessToken, "button", "read"));
+		String externalDomain = "furnas";
+		System.out.println(exportRole(accessToken, activeRole,externalDomain));		
+		System.out.println(dropActivateRoles(accessToken,activeRole));
+		
+		
+		/*
 		System.out.println("-- Exporting the role: " + role + " to the domain: " + domain+ " --");
 		System.out.println(exportRole(accessToken, role,domain));		
 		PrivateKey privateKey = RSA.loadPrivateKey("utfpr_private.key");

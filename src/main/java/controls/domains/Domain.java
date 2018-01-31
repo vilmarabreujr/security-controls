@@ -6,7 +6,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import util.RSA;
+import crypto.RSA;
 
 public class Domain {
 

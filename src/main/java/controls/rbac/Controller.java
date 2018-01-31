@@ -137,7 +137,6 @@ public class Controller
 	{
         try 
         {
-        	System.out.println("domain carregado: " + domain);
         	carregarStub(serviceEndPoint, adminUser, adminPassword);
 
             String[] users = adminStub.listUsers("*", 10000);

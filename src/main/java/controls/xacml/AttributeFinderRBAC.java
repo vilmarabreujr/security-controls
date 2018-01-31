@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.carbon.identity.entitlement.pip.AbstractPIPAttributeFinder;
 
+import util.HttpConnection;
+
 // jar /home/aluno/Documentos/wso2is-5.3.0/repository/components/lib/AttributeFinderRBAC.jar
 public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 	
@@ -50,11 +52,12 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
         return "RBAC";
     }
         
+        
     @Override
     public Set<String> getAttributeValues(String subjectId, String resourceId, String actionId,
                                           String environmentId, String attributeId, String issuer) throws Exception{
 
-		
+		System.out.println("oiiiiiiiiiiiiiiiiiiii");
     	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){
             return null;
         }
@@ -146,6 +149,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     
     @Override
 	public Set<String> getSupportedAttributes() {
+    	System.out.println("getSupportedAttributes");
 		return supportedAttributes;
 	}
     
@@ -154,8 +158,11 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 		String returnValue = null;
 		try 
 		{					
-			String url = "https://localhost:8443/securitycontrols/api/rbac/activated?accessToken=" + acessToken;
+			String rbabUrl = getRBACURL(acessToken);
+			String url = rbabUrl + "rbac/activated?accessToken=" + acessToken;
+			System.out.println("url: " + url);
 			returnValue = sendGet(url);
+			System.out.println("retorno: " + returnValue);
 		} 
 		catch (Exception e) 
 		{
@@ -260,6 +267,16 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 		}		
 		return returnValue;
 	} */
+    
+    public String getRBACURL(String token) throws Exception
+	{
+		String prefix = "https://localhost:8443/securitycontrols/api/";
+		String url = prefix + "user-information?accessToken=" + token;
+		String response = sendGet(url);
+		JSONObject jResponse = new JSONObject(response);	
+		String rbacUrl = jResponse.getString("profile");
+		return rbacUrl;
+	}
     
     public static String sendGet(String url) throws Exception {
 
