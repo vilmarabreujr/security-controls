@@ -8,6 +8,9 @@ public class ExportedRole extends Role{
 	public String getDomain() {
 		return domain;
 	}
+	public String getRegisteredRole() {
+		return registeredRole;
+	}
 	public ExportedRole(String id, String originalRole, String registeredRole, String domain) {
 		super(id);
 		this.domain = domain;

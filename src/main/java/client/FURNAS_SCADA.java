@@ -1,26 +1,12 @@
 package client;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.util.Base64;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
-
 import controls.domains.Domain;
 import controls.domains.DomainController;
 import controls.rbac.User;
 import crypto.Base_64;
 import crypto.RSA;
 import util.AuthProperties;
-import util.HttpConnection;
-import util.JWT;
 
 public class FURNAS_SCADA 
 {
@@ -71,16 +57,15 @@ public class FURNAS_SCADA
 		}
 		
 		String scope = "openid " + complemento;		
-		
-		System.err.println(scope);
-		
+				
 		return scope;
 	}
-	
+		
 	public static void main(String[] args) throws Exception 
 	{
 		init();
 		String user = "bob@furnas.com";
+		User u = new User(user);
 		
 		String authenticationCode = GENERAL.Authenticate(prop,user, "secret");
 		String code = GENERAL.getCode(prop, authenticationCode);
@@ -108,10 +93,26 @@ public class FURNAS_SCADA
 		GENERAL.ImprimeTokens(tokens);
 		jTokens = new JSONObject(tokens);	
 		String remoteAccessToken = jTokens.getString("access_token");
-		System.out.println(GENERAL.validarToken(propRemote,remoteAccessToken));
 		
-				
-		//String cipherRoles = getExportedRoles(accessToken, domain);
+		String cipherRoles = GENERAL.getExportedRoles(propRemote,remoteAccessToken, "furnas");
+		
+		String exportedRoles = RSA.decrypt(cipherRoles, u.getPrivateKey());
+		System.out.println(exportedRoles);
+		
+		JSONObject jObject = new JSONObject(exportedRoles);
+		JSONArray listExportedRoles = jObject.getJSONArray("exportedroles");
+		String exportedRole = "";
+		for( int i = 0; i < listExportedRoles.length(); i++ )
+		{
+			JSONObject jCurrent = (JSONObject)listExportedRoles.get(i);
+			jCurrent = (JSONObject)jCurrent.get("role");
+			String id = jCurrent.getString("id");
+			exportedRole = id;
+		}
+		String signedRole = RSA.encrypt(exportedRole, u.getPrivateKey());
+		signedRole = Base_64.encode(signedRole.getBytes());
+		System.err.println(signedRole);
+		System.out.println(GENERAL.RemoteRoleActivation(prop, remoteAccessToken, exportedRole, signedRole));
 		
 		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 		

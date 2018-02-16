@@ -372,7 +372,7 @@ public class Controller
         }
 	}
 	
-	public List<ExportedRole> getExportedRole(String domain)
+	public List<ExportedRole> getExportedRole(List<String> registeredRoles, String domain)
 	{
 		List<ExportedRole> listExported = new ArrayList<ExportedRole>();
 		for( int i = 0; i < listRoles.size(); i++ )
@@ -383,7 +383,8 @@ public class Controller
 				ExportedRole exported = (ExportedRole)current;
 				if( exported.getDomain().equals(domain))
 				{
-					listExported.add(exported);
+					if( registeredRoles.contains(exported.getRegisteredRole()))
+						listExported.add(exported);
 				}
 			}
 		}

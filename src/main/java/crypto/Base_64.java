@@ -12,4 +12,9 @@ public class Base_64 {
 	{
 	  	return Base64.getDecoder().decode(text);
 	}
+	
+	public static String decodeString(String text)
+	{
+	  	return new String(decode(text));
+	}
 }

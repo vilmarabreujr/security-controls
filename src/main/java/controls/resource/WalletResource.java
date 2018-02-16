@@ -1,5 +1,7 @@
 package controls.resource;
 
+import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -14,6 +17,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import client.GENERAL;
 import controls.domains.Domain;
 import controls.domains.DomainController;
 import controls.openid.TokenValidationService;
@@ -24,6 +31,7 @@ import controls.rbac.Session;
 import controls.rbac.User;
 import controls.response.TokenValidationResponse;
 import controls.xacml.PolicyManager;
+import crypto.Base_64;
 import crypto.RSA;
 import util.AuthProperties;
 
@@ -71,9 +79,45 @@ public class WalletResource {
 			{
 	            return Response.ok("{\"error\": \"The domain is not trustable.\"}").build();
 			}
+			
+			//Processar o token
+			String[] scopes = service.getScope().split(" ");
+			PublicKey kpu = null;
+			List<String> registeredRoles = new ArrayList<String>();
+			for(String s : scopes )
+			{
+				if( !s.equals("openid") )
+				{
+					String decodedScope = Base_64.decodeString(s);
+					JSONObject jObject = new JSONObject(decodedScope);
+					
+					String activeRoles = jObject.get("activeroles").toString();
+					JSONArray listRoles = new JSONArray(activeRoles);
+					
+		    		for( int i = 0; i < listRoles.length(); i++ )
+		    		{
+		    			JSONObject jCurrent = (JSONObject)listRoles.get(i);
+		    			jCurrent = (JSONObject)jCurrent.get("role");
+		    			String id = jCurrent.getString("id");
+		    			registeredRoles.add(id);
+		    		}				
+
+					String str_kpu = jObject.get("kpu").toString();
+					JSONArray jList = new JSONArray(str_kpu);
+					str_kpu = jList.getString(0);
+					System.out.println(str_kpu);
+					kpu = RSA.stringToPublicKey(str_kpu);							
+				}
+			}
+			if( kpu == null )
+			{
+	            return Response.ok("{\"error\": \"The remote token is not acceptable.\"}").build();
+			}
+			//			
+			
             Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
             
-			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(domain);
+			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(registeredRoles, domain);
 
 			String response = "{\"exportedroles\": [";
 			for( int i = 0; i < exportedRoles.size(); i++ )
@@ -86,7 +130,7 @@ public class WalletResource {
 			}	
 			response += "]}";
 			System.out.println(response);
-			//response = new String(RSA.encrypt(response, externalDomain.getPublicKey()));	
+			response = new String(RSA.encrypt(response, kpu));	
 
             return Response.ok(response).build();
             
@@ -153,6 +197,72 @@ public class WalletResource {
         }
     }
     
+	@PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response RemoteRoleActivation(@QueryParam("accessToken") String token, @QueryParam("exportedRole") String exportedRole, @QueryParam("signedRole") String signedRole, @Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
+        
+        try {
+			System.out.println("hauhuahuauhsuadusaduasuduasud");
+            boolean isTokenValid = service.isTokenValid(token);
+            if( !isTokenValid )
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
+            
+            //Processar o token
+			String[] scopes = service.getScope().split(" ");
+			PublicKey kpu = null;
+			List<String> registeredRoles = new ArrayList<String>();
+			for(String s : scopes )
+			{
+				if( !s.equals("openid") )
+				{
+					String decodedScope = Base_64.decodeString(s);
+					JSONObject jObject = new JSONObject(decodedScope);
+					
+					String activeRoles = jObject.get("activeroles").toString();
+					JSONArray listRoles = new JSONArray(activeRoles);
+					
+		    		for( int i = 0; i < listRoles.length(); i++ )
+		    		{
+		    			JSONObject jCurrent = (JSONObject)listRoles.get(i);
+		    			jCurrent = (JSONObject)jCurrent.get("role");
+		    			String id = jCurrent.getString("id");
+		    			registeredRoles.add(id);
+		    		}				
+
+					String str_kpu = jObject.get("kpu").toString();
+					JSONArray jList = new JSONArray(str_kpu);
+					str_kpu = jList.getString(0);
+					kpu = RSA.stringToPublicKey(str_kpu);							
+				}
+			}
+			if( kpu == null )
+			{
+	            return Response.ok("{\"error\": \"The remote token is not acceptable.\"}").build();
+			}
+			//
+			User u = new User(service.getSubject());
+			System.out.println(exportedRole);
+			System.out.println(signedRole);
+			signedRole = new String(Base_64.decode(signedRole));
+			String unsignedRole = RSA.decrypt(signedRole, u.getPublicKey());
+			System.out.println(unsignedRole);
+			if( !unsignedRole.equals(exportedRole) )
+			{
+	            return Response.ok("{\"error\": \"The authenticity of user cannont be validate.\"}").build();
+			}
+			else
+			{
+	            return Response.ok("{\"error\": \"good good good\"}").build();
+			}                       
+
+            //return Response.ok("{\"sucess\": \"The policy has been exported!\", \"policy\": \"" + policyID + "\", \"role\": \"" + exportedRoleID + "\"}").build();
+            
+        } catch (Exception e) {
+        	System.out.println(e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
+    }
 	
 	@GET
     @Path("registered")

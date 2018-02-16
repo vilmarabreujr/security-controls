@@ -255,4 +255,11 @@ public class GENERAL {
 		String response = HttpConnection.sendPost(url);
 		return response;
 	}
+	
+	public static String RemoteRoleActivation(AuthProperties prop,String token, String exportedRole, String signedRole) throws Exception
+	{
+		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&exportedRole=" + exportedRole + "&signedRole=" + signedRole;
+		String response = HttpConnection.sendPut(url);
+		return response;
+	}
 }
