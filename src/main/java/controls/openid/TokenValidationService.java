@@ -18,6 +18,8 @@ public class TokenValidationService {
     
     private static final int TIMEOUT_IN_MILLIS = 15 * 1000;
     private String subject = "";
+    private String scope = "";
+    
     private AuthProperties props;
     public TokenValidationService(AuthProperties _props)
     {
@@ -32,6 +34,13 @@ public class TokenValidationService {
     public boolean isTokenValid(String accessToken) throws RemoteException {
         OAuth2TokenValidationResponseDTO resp = getTokenValidation(accessToken);
         this.subject = resp.getAuthorizedUser();
+        String[] scope = resp.getScope();
+        this.scope = "";
+        for(String s : scope )
+        {
+        	this.scope += s + " ";
+        }
+        this.scope = this.scope.trim();
         return resp.getValid();
     }
     
@@ -40,6 +49,10 @@ public class TokenValidationService {
     	return subject;
     }
     
+    public String getScope()
+    {
+    	return scope;
+    }
     /**
      * 
      * @param accessToken

@@ -7,11 +7,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
@@ -79,11 +84,11 @@ public class RSA {
 		    	e.printStackTrace();
 		    }
 		    
-		    return Base64.getEncoder().encodeToString(cipherText);
+		    return Base_64.encode(cipherText);
 	  }
 
 	  public static String decrypt(String text, Key key) {
-		  	byte[] cipherText = Base64.getDecoder().decode(text);
+		  	byte[] cipherText = Base_64.decode(text);
 			byte[] dectyptedText = null;
 			try {
 				// get an RSA cipher object and print the provider
@@ -115,5 +120,42 @@ public class RSA {
 		  PublicKey publicKey = (PublicKey) inputStream.readObject();
 	      return publicKey;		  
 	  }
+	  
+	  
+	  public static PrivateKey stringToPrivateKey(String key64) throws GeneralSecurityException {
+		    byte[] clear = Base_64.decode(key64);
+		    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
+		    KeyFactory fact = KeyFactory.getInstance(ALGORITHM);
+		    PrivateKey priv = fact.generatePrivate(keySpec);
+		    Arrays.fill(clear, (byte) 0);
+		    return priv;
+		}
+
+
+		public static PublicKey stringToPublicKey(String stored) throws GeneralSecurityException {
+		    byte[] data = Base_64.decode(stored);
+		    X509EncodedKeySpec spec = new X509EncodedKeySpec(data);
+		    KeyFactory fact = KeyFactory.getInstance(ALGORITHM);
+		    return fact.generatePublic(spec);
+		}
+
+		public static String privateKeyToString(PrivateKey priv) throws GeneralSecurityException {
+		    KeyFactory fact = KeyFactory.getInstance(ALGORITHM);
+		    PKCS8EncodedKeySpec spec = fact.getKeySpec(priv,
+		            PKCS8EncodedKeySpec.class);
+		    byte[] packed = spec.getEncoded();
+		    String key64 = Base_64.encode(packed);
+
+		    Arrays.fill(packed, (byte) 0);
+		    return key64;
+		}
+
+
+		public static String publicKeyToString(PublicKey publ) throws GeneralSecurityException {
+		    KeyFactory fact = KeyFactory.getInstance(ALGORITHM);
+		    X509EncodedKeySpec spec = fact.getKeySpec(publ,
+		            X509EncodedKeySpec.class);
+		    return Base_64.encode(spec.getEncoded());
+		}
 	  
 }

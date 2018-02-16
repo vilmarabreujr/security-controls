@@ -23,12 +23,6 @@ public class Domain {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public PublicKey getPublicKey() {
-		return publicKey;
-	}
-	public PrivateKey getPrivateKey() {
-		return privateKey;
-	}
 	protected String name;
 	protected String configPath;
 	public String getConfigPath() {
@@ -43,20 +37,8 @@ public class Domain {
 		this.id = id;
 		this.name = name;
 		this.configPath = System.getenv("HOME") + "/." + id + "/";
-
-    	String PRIVATE_KEY_FILE = id + "_private.key";
-    	String PUBLIC_KEY_FILE =  id + "_public.key";		
-		try 
-		{
-			RSA.generateKey(PRIVATE_KEY_FILE, PUBLIC_KEY_FILE);
-			this.publicKey = RSA.loadPublicKey(PUBLIC_KEY_FILE);
-			this.privateKey = RSA.loadPrivateKey(PRIVATE_KEY_FILE);
-		
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
+	
 	public String toString()
 	{
 		return "{\"domain\": {\"id\": \"" + this.id + "\", \"name\": \"" + this.name + "\"}}";

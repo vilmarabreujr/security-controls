@@ -63,7 +63,7 @@ public class WalletResource {
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             DomainController domainController = DomainController.getInstance();
             Domain externalDomain = domainController.getDomain(domain);
@@ -71,7 +71,7 @@ public class WalletResource {
 			{
 	            return Response.ok("{\"error\": \"The domain is not trustable.\"}").build();
 			}
-            Controller controllerRBAC = RBACResource.getControllerRBAC(httpRequest);
+            Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
             
 			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(domain);
 
@@ -86,7 +86,7 @@ public class WalletResource {
 			}	
 			response += "]}";
 			System.out.println(response);
-			response = new String(RSA.encrypt(response, externalDomain.getPublicKey()));	
+			//response = new String(RSA.encrypt(response, externalDomain.getPublicKey()));	
 
             return Response.ok(response).build();
             
@@ -97,16 +97,16 @@ public class WalletResource {
 	
 	@POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response exportRole(@QueryParam("accessToken") String token, @QueryParam("role") String role, @QueryParam("domain") String domain,@Context HttpServletRequest httpRequest) {
+    public Response exportRole(@QueryParam("accessToken") String token, @QueryParam("role") String originalRole, @QueryParam("domain") String domain, @QueryParam("registerdRole") String registerdRole,@Context HttpServletRequest httpRequest) {
         TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
-            Controller controllerRBAC = RBACResource.getControllerRBAC(httpRequest);
+            Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
             User u = controllerRBAC.getUser(subject);
 			if( u == null )
 			{
@@ -114,7 +114,7 @@ public class WalletResource {
 			}		
 
 			Session s = controllerRBAC.getSession(subject);
-			Role activeRole = controllerRBAC.getRole(role);
+			Role activeRole = controllerRBAC.getRole(originalRole);
 			if( activeRole == null )
 			{
 	            return Response.ok("{\"error\": \"Invalid role.\"}").build();
@@ -132,22 +132,18 @@ public class WalletResource {
 			//Conferir as permissões
 			
 			//Criar um papel temporario
-			String exportedRoleID = controllerRBAC.CreateExportedRole(domain);
-			
-//TEMPORARIO
-controllerRBAC.UserAssignment(u, controllerRBAC.getRole(exportedRoleID));
-//
-			
+			String exportedRoleID = controllerRBAC.CreateExportedRole(originalRole, registerdRole, domain);
+					
 			if( exportedRoleID == null )
 			{
 	            return Response.ok("{\"error\": \"The exported role cannot be created.\"}").build();
 			}
 			//Exportar a politica
 			PolicyManager policyManager = getPolicyManager(httpRequest);
-			String policyID = policyManager.exportPolicy(role, exportedRoleID);
+			String policyID = policyManager.exportPolicy(originalRole, exportedRoleID);
 			if( policyID == null )
 			{
-	            return Response.ok("{\"error\": \"\"Error: There is no policy associated with the \"" + role +"\"}").build();
+	            return Response.ok("{\"error\": \"\"Error: There is no policy associated with the \"" + originalRole +"\"}").build();
 			}
 
             return Response.ok("{\"sucess\": \"The policy has been exported!\", \"policy\": \"" + policyID + "\", \"role\": \"" + exportedRoleID + "\"}").build();
@@ -157,5 +153,78 @@ controllerRBAC.UserAssignment(u, controllerRBAC.getRole(exportedRoleID));
         }
     }
     
+	
+	@GET
+    @Path("registered")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRegisteredRoles(@QueryParam("accessToken") String token, @Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
+        
+        try {
+            boolean isTokenValid = service.isTokenValid(token);
+            if( !isTokenValid )
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
+            
+            Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
+            
+			List<Role> roles = controllerRBAC.getRegisterRole();
+
+			String response = "{\"registeredroles\": [";
+			for( int i = 0; i < roles.size(); i++ )
+			{
+				Role role = roles.get(i);
+				response += role.toString();
+				//se nao for o ultimo
+				if( i < roles.size() -1 )
+					response += ", ";
+			}	
+			response += "]}";
+
+            return Response.ok(response).build();
+            
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
+    }
+	
+	@POST
+    @Path("registered")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response registerRole(@QueryParam("accessToken") String token, @QueryParam("role") String role, @Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
+        
+        try {
+            boolean isTokenValid = service.isTokenValid(token);
+            if( !isTokenValid )
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
+            
+            String subject = service.getSubject();
+            Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
+            User u = controllerRBAC.getUser(subject);
+			if( u == null )
+			{
+                return Response.ok("{\"error\": \"Invalid subject\"}").build();
+			}		
+
+			Role registeredRole = controllerRBAC.getRole(role);
+			if( registeredRole == null )
+			{
+	            return Response.ok("{\"error\": \"Invalid role.\"}").build();
+			}
+			
+			//Criar um papel temporario
+			boolean process = controllerRBAC.setRegisterRole(registeredRole, true);
+						
+			if( process == false )
+			{
+	            return Response.ok("{\"error\": \"The role cannot be registered.\"}").build();
+			}
+
+            return Response.ok("{\"sucess\": \"The role has been registered!\"}").build();
+            
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
+    }
 
 }

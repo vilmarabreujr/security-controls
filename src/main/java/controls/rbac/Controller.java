@@ -351,7 +351,7 @@ public class Controller
 		return false;
 	}
 	
-	public String CreateExportedRole(String domain)
+	public String CreateExportedRole(String originalRole, String registeredRole, String domain)
 	{
         try 
         {        	 
@@ -360,7 +360,7 @@ public class Controller
         	int id = r.nextInt();
             String roleName = "DynamicRole" + Integer.toString(id);       
 
-    		ExportedRole role = new ExportedRole(roleName, domain);
+    		ExportedRole role = new ExportedRole(roleName, originalRole, registeredRole, domain);
         	listRoles.add(role);
     		return roleName;         
         } 
@@ -388,6 +388,28 @@ public class Controller
 			}
 		}
 		return listExported;
+	}
+	
+	public boolean setRegisterRole(Role r, boolean enableImportation)
+	{
+		if( r == null )
+			return false;
+		r.setEnableImportation(enableImportation);
+		return true;
+	}
+	
+	public List<Role> getRegisterRole()
+	{
+		List<Role> listRegistered = new ArrayList<Role>();
+		for( int i = 0; i < listRoles.size(); i++ )
+		{
+			Role current = listRoles.get(i);
+			if( current.enableImportation() )
+			{
+				listRegistered.add(current);
+			}
+		}
+		return listRegistered;
 	}
 
 }

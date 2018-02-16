@@ -28,7 +28,7 @@ public class RBACResource
 {
 	private static Map<Domain, Controller> controllers;
 
-	public static Controller getControllerRBAC(HttpServletRequest httpRequest)
+	public Controller getControllerRBAC(HttpServletRequest httpRequest)
 	{
 		DomainController controller = DomainController.getInstance();
     	Domain d = controller.getDomain(httpRequest);
@@ -36,6 +36,18 @@ public class RBACResource
     		return null;
     	Controller controllerRBAC = controllers.get(d);
 		return controllerRBAC;
+	}
+	
+	public static RBACResource inst;
+	
+
+	public static RBACResource getInst()
+	{
+		if( inst == null )
+		{
+			inst = new RBACResource();
+		}
+		return inst;
 	}
 	
 	public RBACResource() {
@@ -61,7 +73,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
             Controller controllerRBAC = getControllerRBAC(httpRequest);
@@ -116,7 +128,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 
@@ -159,7 +171,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 
@@ -197,7 +209,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 
@@ -233,7 +245,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 
@@ -271,7 +283,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 
@@ -306,7 +318,7 @@ public class RBACResource
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             String subject = service.getSubject();
 

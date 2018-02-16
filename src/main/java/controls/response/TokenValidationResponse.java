@@ -8,15 +8,18 @@ public class TokenValidationResponse implements Serializable {
 
     private boolean isTokenValid;
     private String subject;
+    private String scope;
 
     public TokenValidationResponse() {
         setTokenValid(false);
         setSubject("invalid");
+        setScope("invalid");
     }
 
-    public TokenValidationResponse(boolean isTokenValid, String subject) {
+    public TokenValidationResponse(boolean isTokenValid, String subject, String scope) {
         setTokenValid(isTokenValid);
         setSubject(subject);
+        setScope(scope);
     }
 
     public boolean isTokenValid() {
@@ -33,5 +36,13 @@ public class TokenValidationResponse implements Serializable {
 
 	public void setSubject(String subject) {
 		this.subject = subject;
+	}
+	
+	public String getScope() {
+		return scope;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
 	}
 }

@@ -8,11 +8,19 @@ public class Role
 	protected String id;
 	protected String name;
 	protected List<User> listUsers;
+	protected boolean enableImportation;
 	public Role(String id)
 	{
 		this.id = id;
 		this.name = id;
 		this.listUsers = new ArrayList<User>();
+		this.enableImportation = false;
+	}
+	public boolean enableImportation() {
+		return enableImportation;
+	}
+	public void setEnableImportation(boolean enableImportation) {
+		this.enableImportation = enableImportation;
 	}
 	public String getId() {
 		return id;

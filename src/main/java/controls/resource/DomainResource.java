@@ -26,7 +26,7 @@ public class DomainResource {
         try {
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
-                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid")).build();
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             DomainController domainController = DomainController.getInstance();
             

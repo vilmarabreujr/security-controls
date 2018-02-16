@@ -31,248 +31,50 @@ public class COPEL_SCADA
 	}
 	public static void init()
 	{
-		String domainName = "copel";
 		DomainController domains = DomainController.getInstance();
+		
+		String domainName = "copel";
 		Domain d = domains.getDomain(domainName);
 		prop = AuthProperties.init(d);
+		
+		domainName = "furnas";
+		d = domains.getDomain(domainName);
+		propRemote = AuthProperties.init(d);
+		
 	}
 	public static AuthProperties prop;
+	public static AuthProperties propRemote;	
 	
-	
-	public static String Authenticate(String user, String password) throws Exception
-	{		
-		String clientID = prop.getConsumerKey();
-		String clientPWD = prop.getConsumerSecret();
-		URL obj = new URL(prop.getTokenEndpoint());
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		//con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		String encoded = Base64.getEncoder().encodeToString((clientID+":"+clientPWD).getBytes(StandardCharsets.UTF_8));
-		con.setRequestProperty("Authorization", "Basic " + encoded);
-		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8"); 
-		con.setDoOutput(true);
-		
-		String str =  "grant_type=password&username=" + user + "&password=" + password;
-		byte[] outputInBytes = str.getBytes("UTF-8");
-		OutputStream os = con.getOutputStream();
-		os.write( outputInBytes );    
-		os.close();
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		String jsonString = response.toString();
-		JSONObject jObject = new JSONObject(jsonString);		
-		//print result
-		return jObject.getString("access_token");
-	}
-	
-	public static String getCode(String authenticationCode) throws Exception
-	{
-		String clientID = prop.getConsumerKey();
-		String callBackURL = prop.getCallBackURL();
-		URL obj = new URL(prop.getAuthzEndpoint());
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		con.setRequestProperty("Authorization", "Bearer " + authenticationCode);
-		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8"); 
-		con.setDoOutput(true);
-		con.setInstanceFollowRedirects(false);
-		
-		String str =  "response_type=code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&scope=" + prop.getScope();
-		byte[] outputInBytes = str.getBytes("UTF-8");
-		OutputStream os = con.getOutputStream();
-		os.write( outputInBytes );    
-		os.close();
-				
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		//print result
-		String location = con.getHeaderField("Location");
-		System.out.println(location);
-		URI uri = new URI(location);		
-		String code = HttpConnection.getParameter(uri.getQuery(), "code");		
-		return code;
-	}
-	
-	public static String getTokens(String code) throws Exception
-	{
-		String clientID = prop.getConsumerKey();
-		String clientPWD = prop.getConsumerSecret();
-		String callBackURL = prop.getCallBackURL();
-		URL obj = new URL(prop.getTokenEndpoint());
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		//con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		String encoded = Base64.getEncoder().encodeToString((clientID+":"+clientPWD).getBytes(StandardCharsets.UTF_8));  //Java 8
-		con.setRequestProperty("Authorization", "Basic "+encoded);
-		con.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=UTF-8"); 
-		con.setDoOutput(true);
-		
-		String str =  "grant_type=authorization_code&client_id=" + clientID + "&redirect_uri=" + callBackURL + "&code=" + code + "&scope=openid";
-		byte[] outputInBytes = str.getBytes("UTF-8");
-		OutputStream os = con.getOutputStream();
-		os.write( outputInBytes );    
-		os.close();
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		System.out.println(response);
-		//print result
-		return response.toString();
-	}
-	
-	public static String validarToken(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "validate-token?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String getRoles(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String getUserInfo(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "user-information?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String getActivateRoles(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String addActivateRoles(String token, String roleID) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token + "&role=" + roleID;
-		String response = HttpConnection.sendPost(url);
-		return response;
-	}
-	
-	public static String dropActivateRoles(String token, String roleID) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/activated?accessToken=" + token + "&role=" + roleID;
-		String response = HttpConnection.sendDelete(url);
-		return response;
-	}
-	
-	public static String getConstraints(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String addConstraints(String token, String roleA, String roleB) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
-		String response = HttpConnection.sendPost(url);
-		return response;
-	}
-	
-	public static String dropConstraints(String token, String roleA, String roleB) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "rbac/constraints?accessToken=" + token + "&roleA=" + roleA + "&roleB=" + roleB;
-		String response = HttpConnection.sendDelete(url);
-		return response;
-	}
-	
-	public static String requestAccess(String token, String resource, String action) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "access-control?accessToken=" + token + "&resource=" + resource + "&action=" + action;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-	
-	public static String exportRole(String token, String role, String domain) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&role=" + role+ "&domain=" + domain;
-		String response = HttpConnection.sendPost(url);
-		return response;
-	}	
-	
-	public static String getExportedRoles(String token, String domain) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&domain=" + domain;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
-
-	public static String getTrustedDomains(String token) throws Exception
-	{
-		String url = prop.getSecurityControlsURL() + "domain?accessToken=" + token;
-		String response = HttpConnection.sendGet(url);
-		return response;
-	}
 	
 	public static void main(String[] args) throws Exception 
 	{
 		init();
-		String authenticationCode = Authenticate("vilmar@copel.com", "vilmar");
-		String code = getCode(authenticationCode);
-		String tokens = getTokens(code);
+		String authenticationCode = GENERAL.Authenticate(prop,"alice@copel.com", "secret");
+		String code = GENERAL.getCode(prop,authenticationCode);
+		String tokens = GENERAL.getTokens(prop, code);
 		JSONObject jTokens = new JSONObject(tokens);	
+		GENERAL.ImprimeTokens(tokens);
 		String accessToken = jTokens.getString("access_token");
 		String idToken = jTokens.getString("id_token");
-		
-		System.out.println("acessToken: " + accessToken);
-		System.out.println("idToken: " + idToken);
-
-		JWT.processToken(idToken);
 						
 		//TESTAR A PESQUISA DE PAPÉIS
-		System.out.println("Userinfo: \t" + getUserInfo(accessToken));
-		System.out.println(getRoles(accessToken));
-		String activeRole = "enginner";
-		System.out.println(addActivateRoles(accessToken,activeRole));
-		System.out.println(getTrustedDomains(accessToken));
-		System.out.println(getActivateRoles(accessToken));	
-		System.out.println(requestAccess(accessToken, "button", "read"));
-		String externalDomain = "furnas";
-		System.out.println(exportRole(accessToken, activeRole,externalDomain));		
-		System.out.println(dropActivateRoles(accessToken,activeRole));
+		System.out.println("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
+		System.out.println(GENERAL.getRoles(prop,accessToken));
 		
+
+		//Processo de acesso a recurso local protegido
+		String activeRole = "enginner";
+		System.out.println(GENERAL.addActivateRoles(prop,accessToken,activeRole));
+		System.out.println(GENERAL.getTrustedDomains(prop,accessToken));
+		System.out.println(GENERAL.getActivateRoles(prop,accessToken));	
+		System.out.println(GENERAL.requestAccess(prop,accessToken, "button", "read"));
+		
+		//Processo de exportação
+		String externalDomain = "furnas";
+		System.out.println(GENERAL.getRegisteredRoles(propRemote,accessToken));
+		String registeredRole = "operator";		
+		System.out.println(GENERAL.exportRole(prop,accessToken, activeRole,externalDomain, registeredRole));			
+		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));		
 		
 		/*
 		System.out.println("-- Exporting the role: " + role + " to the domain: " + domain+ " --");
