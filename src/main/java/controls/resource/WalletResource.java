@@ -85,8 +85,8 @@ public class WalletResource {
 			PublicKey kpu = null;
 			List<String> registeredRoles = new ArrayList<String>();
 			for(String s : scopes )
-			{
-				if( !s.equals("openid") )
+			{ 
+				try
 				{
 					String decodedScope = Base_64.decodeString(s);
 					JSONObject jObject = new JSONObject(decodedScope);
@@ -105,8 +105,11 @@ public class WalletResource {
 					String str_kpu = jObject.get("kpu").toString();
 					JSONArray jList = new JSONArray(str_kpu);
 					str_kpu = jList.getString(0);
-					System.out.println(str_kpu);
-					kpu = RSA.stringToPublicKey(str_kpu);							
+					kpu = RSA.stringToPublicKey(str_kpu);	
+				}
+				catch(Exception e)
+				{
+					
 				}
 			}
 			if( kpu == null )
@@ -117,7 +120,7 @@ public class WalletResource {
 			
             Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
             
-			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRole(registeredRoles, domain);
+			List<ExportedRole> exportedRoles = controllerRBAC.getExportedRoles(registeredRoles, domain);
 
 			String response = "{\"exportedroles\": [";
 			for( int i = 0; i < exportedRoles.size(); i++ )
@@ -203,18 +206,18 @@ public class WalletResource {
         TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
         
         try {
-			System.out.println("hauhuahuauhsuadusaduasuduasud");
             boolean isTokenValid = service.isTokenValid(token);
             if( !isTokenValid )
                 return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
             
             //Processar o token
+            String userString = service.getSubject();
 			String[] scopes = service.getScope().split(" ");
 			PublicKey kpu = null;
 			List<String> registeredRoles = new ArrayList<String>();
 			for(String s : scopes )
 			{
-				if( !s.equals("openid") )
+				try
 				{
 					String decodedScope = Base_64.decodeString(s);
 					JSONObject jObject = new JSONObject(decodedScope);
@@ -233,7 +236,11 @@ public class WalletResource {
 					String str_kpu = jObject.get("kpu").toString();
 					JSONArray jList = new JSONArray(str_kpu);
 					str_kpu = jList.getString(0);
-					kpu = RSA.stringToPublicKey(str_kpu);							
+					kpu = RSA.stringToPublicKey(str_kpu);
+				}
+				catch(Exception e)
+				{
+					
 				}
 			}
 			if( kpu == null )
@@ -241,20 +248,30 @@ public class WalletResource {
 	            return Response.ok("{\"error\": \"The remote token is not acceptable.\"}").build();
 			}
 			//
-			User u = new User(service.getSubject());
-			System.out.println(exportedRole);
-			System.out.println(signedRole);
-			signedRole = new String(Base_64.decode(signedRole));
-			String unsignedRole = RSA.decrypt(signedRole, u.getPublicKey());
-			System.out.println(unsignedRole);
-			if( !unsignedRole.equals(exportedRole) )
+			try
 			{
+				User u = new User(service.getSubject());
+				signedRole = new String(Base_64.decode(signedRole));
+				String unsignedRole = RSA.decrypt(signedRole, u.getPublicKey());
+				if( !unsignedRole.equals(exportedRole) )
+				{
+		            return Response.ok("{\"error\": \"The authenticity of user cannont be validate.\"}").build();
+				}  
+			}
+			catch (Exception e) {
+				// TODO: handle exception
 	            return Response.ok("{\"error\": \"The authenticity of user cannont be validate.\"}").build();
 			}
-			else
-			{
-	            return Response.ok("{\"error\": \"good good good\"}").build();
-			}                       
+            Controller controllerRBAC = RBACResource.getInst().getControllerRBAC(httpRequest);
+            Role originalRole = controllerRBAC.getAssociatedRole(exportedRole);
+            boolean hasActiveUsers = controllerRBAC.hasActiveUsers(originalRole);
+            if( !hasActiveUsers )
+            {
+	            return Response.ok("{\"error\": \"There is no users with the exported role in session.\"}").build();
+            }               
+
+            String response = controllerRBAC.AddActiveExportedRole(userString, exportedRole);
+            return Response.ok(response).build();     
 
             //return Response.ok("{\"sucess\": \"The policy has been exported!\", \"policy\": \"" + policyID + "\", \"role\": \"" + exportedRoleID + "\"}").build();
             

@@ -8,9 +8,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-
 import org.json.JSONObject;
-
 import util.AuthProperties;
 import util.HttpConnection;
 import util.JWT;

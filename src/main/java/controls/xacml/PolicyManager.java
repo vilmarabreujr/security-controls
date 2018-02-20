@@ -269,7 +269,7 @@ public class PolicyManager
 						"         <Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:any-of\">"+
 						"            <Function FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\"></Function>"+
 						"            <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + role + "</AttributeValue>"+
-						"            <AttributeDesignator AttributeId=\"rbac_active_role\" Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"></AttributeDesignator>"+
+						"            <AttributeDesignator AttributeId=\"wallet_active_role\" Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"></AttributeDesignator>"+
 						"         </Apply>"+
 						"     </Condition>"+
 						"   </Rule>";	

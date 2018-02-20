@@ -42,4 +42,8 @@ public class Role
 	{
 		return "{\"role\": {\"id\": \"" + this.id + "\", \"name\": \"" + this.name + "\"}}";
 	}
+	public List<User> getListUsers()
+	{
+		return listUsers;
+	}
 }

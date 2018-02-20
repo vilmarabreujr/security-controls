@@ -61,7 +61,22 @@ public class COPEL_SCADA
 		System.out.println("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
 		System.out.println(GENERAL.getRoles(prop,accessToken));
 		
-
+		String prefix = "https://localhost:8443/securitycontrols/api/";
+		String url = prefix + "user-information?accessToken=" + accessToken;
+		String response = HttpConnection.sendGet(url);
+		JSONObject jResponse = new JSONObject(response);	
+		if( jResponse.has("profile") )
+		{
+			String rbacUrl = jResponse.getString("profile");
+			System.out.println(rbacUrl);
+		}
+		if( jResponse.has("website") )
+		{
+			String rbacUrl = jResponse.getString("website");
+			System.out.println(rbacUrl);
+		}
+		
+		
 		//Processo de acesso a recurso local protegido
 		String activeRole = "enginner";
 		System.out.println(GENERAL.addActivateRoles(prop,accessToken,activeRole));
@@ -73,8 +88,9 @@ public class COPEL_SCADA
 		String externalDomain = "furnas";
 		System.out.println(GENERAL.getRegisteredRoles(propRemote,accessToken));
 		String registeredRole = "operator";		
-		System.out.println(GENERAL.exportRole(prop,accessToken, activeRole,externalDomain, registeredRole));			
-		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));		
+		System.out.println(GENERAL.exportRole(prop,accessToken, activeRole,externalDomain, registeredRole));
+		
+		//System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));		
 		
 		/*
 		System.out.println("-- Exporting the role: " + role + " to the domain: " + domain+ " --");

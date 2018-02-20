@@ -36,7 +36,7 @@ public class FURNAS_SCADA
 	public static AuthProperties prop;
 	public static AuthProperties propRemote;
 	
-	public static String buildRemoteScope(String user, String roles)
+	public static String buildRemoteScope(AuthProperties prop, String user, String roles)
 	{
 		String complemento = "";
 
@@ -56,10 +56,12 @@ public class FURNAS_SCADA
 			e.printStackTrace();
 		}
 		
-		String scope = "openid " + complemento;		
+		String scope = prop.getScope() + " " + complemento;	
 				
 		return scope;
 	}
+	
+	
 		
 	public static void main(String[] args) throws Exception 
 	{
@@ -87,13 +89,13 @@ public class FURNAS_SCADA
 		String roles = GENERAL.getActivateRoles(prop,accessToken);
 		System.out.println(roles);	
 		
-		String scopeRemote = buildRemoteScope(user, roles);
+		String scopeRemote = buildRemoteScope(propRemote, user, roles);
 		code = GENERAL.getCode(propRemote, authenticationCode, scopeRemote);
 		tokens = GENERAL.getTokens(propRemote, code, scopeRemote);	
 		GENERAL.ImprimeTokens(tokens);
 		jTokens = new JSONObject(tokens);	
 		String remoteAccessToken = jTokens.getString("access_token");
-		
+				
 		String cipherRoles = GENERAL.getExportedRoles(propRemote,remoteAccessToken, "furnas");
 		
 		String exportedRoles = RSA.decrypt(cipherRoles, u.getPrivateKey());
@@ -111,9 +113,14 @@ public class FURNAS_SCADA
 		}
 		String signedRole = RSA.encrypt(exportedRole, u.getPrivateKey());
 		signedRole = Base_64.encode(signedRole.getBytes());
-		System.err.println(signedRole);
-		System.out.println(GENERAL.RemoteRoleActivation(prop, remoteAccessToken, exportedRole, signedRole));
+		System.out.println(GENERAL.RemoteRoleActivation(propRemote, remoteAccessToken, exportedRole, signedRole));
+		System.out.println(GENERAL.getActivateRoles(propRemote,remoteAccessToken));
 		
+
+
+		System.out.println(GENERAL.requestAccess(propRemote,remoteAccessToken, "button", "read"));
+
+		System.out.println(GENERAL.dropActivateRoles(propRemote,remoteAccessToken,exportedRole));
 		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 		
 		

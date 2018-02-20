@@ -13,8 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.carbon.identity.entitlement.pip.AbstractPIPAttributeFinder;
 
-import util.HttpConnection;
-
 // jar /home/aluno/Documentos/wso2is-5.3.0/repository/components/lib/AttributeFinderRBAC.jar
 public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 	
@@ -34,16 +32,14 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 	private Set<String> supportedAttributes = new HashSet<String>();
 	    
     private final String ACTIVE_ROLE_ID = "rbac_active_role";
-    private final String EXTERNAL_ROLE_ID = "rbac_sra_role";
-    private final String EXPORTED_ROLE_ID = "rbac_exported_role";
-    private String ExternalDomain = "";
+    private final String WALLET_ROLE_ID = "wallet_active_role";
     private Map<String, Set<String> > EstruturaBD;
     private boolean cacheEnable = false;
 
     @Override
 	public void init(Properties properties)  throws Exception{
         supportedAttributes.add(ACTIVE_ROLE_ID);
-        //supportedAttributes.add(EXTERNAL_ROLE_ID);
+        supportedAttributes.add(WALLET_ROLE_ID);
         EstruturaBD = new HashMap<String, Set<String>>();
     }
 
@@ -56,9 +52,8 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     @Override
     public Set<String> getAttributeValues(String subjectId, String resourceId, String actionId,
                                           String environmentId, String attributeId, String issuer) throws Exception{
-
-		System.out.println("oiiiiiiiiiiiiiiiiiiii");
-    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !EXTERNAL_ROLE_ID.equals(attributeId) ){
+    	System.out.println("PIP personalizado!");
+    	if(!ACTIVE_ROLE_ID.equals(attributeId) && !WALLET_ROLE_ID.equals(attributeId) ){
             return null;
         }
 		Set<String> values = new HashSet<String>();
@@ -93,44 +88,11 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 	    			values.add(id);
 	    		}
 	    		
-	    		/*if(EXTERNAL_ROLE_ID.equals(attributeId))
-	    		{  			
-					content = getExternalRoles(subjectId);  
-	        		jObject = new JSONObject(content);
-	        		listAppliances = jObject.getJSONArray("roles");
-	        		            		
-	        		for( int i = 0; i < listAppliances.length(); i++ )
-	        		{
-	        			JSONObject jCurrent = (JSONObject)listAppliances.get(i);
-	        			jCurrent = (JSONObject)jCurrent.get("role");
-	        			String id = ExternalDomain + "." + jCurrent.getString("id");
-	        			values.add(id);
-	        		}      		
-	            } 	    		
-
-	    		if(EXPORTED_ROLE_ID.equals(attributeId))
-	    		{  			
-					content = getExportedRole(subjectId);  
-	        		jObject = new JSONObject(content);
-	        		listAppliances = jObject.getJSONArray("roles");
-	        		            		
-	        		for( int i = 0; i < listAppliances.length(); i++ )
-	        		{
-	        			JSONObject jCurrent = (JSONObject)listAppliances.get(i);
-	        			jCurrent = (JSONObject)jCurrent.get("role");
-	        			String id = jCurrent.getString("id");
-	        			values.add(id);
-	        		}      		
-	            }*/
-	    		
 	    		if( cacheEnable )
     			{
         			EstruturaBD.put(subjectId, values);
     			} 
 			}
-    		
-    		
-
     	}
     	catch (Exception e) 
     	{
@@ -158,7 +120,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 		String returnValue = null;
 		try 
 		{					
-			String rbabUrl = getRBACURL(acessToken);
+			String rbabUrl = getDomainURL(acessToken);
 			String url = rbabUrl + "rbac/activated?accessToken=" + acessToken;
 			System.out.println("url: " + url);
 			returnValue = sendGet(url);
@@ -173,109 +135,54 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
 		}		
 		return returnValue;
 	}    
-    
-    /*public String getExternalRoles(String accessToken)
+        
+    public static String validarToken(String accessToken)
 	{
-		String returnValue = null;
-		try 
-		{		
-			String urlRBAC = getURLRBAC(accessToken);
-			String rbacURL = urlRBAC + "controller";
-			rbacURL += "?";
-			rbacURL += "token=" + accessToken;
-			rbacURL += "&";
-			rbacURL += "type=1";
-			
-			HTTPRequest httpRequest = new HTTPRequest(Method.GET, new URL(rbacURL));
-			HTTPResponse httpResponse = httpRequest.send();
-
-			returnValue = httpResponse.getContent();
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-    		System.out.println(e.getMessage());
-			e.printStackTrace();
-			
-		}		
-		return returnValue;
+    	try
+    	{
+    		String securityControlUrl = "https://localhost:8443/securitycontrols/furnas/";
+    		String url = securityControlUrl + "validate-token?accessToken=" + accessToken;
+    		String response = sendGet(url);
+    		return response;
+    	}
+    	catch (Exception e) {
+			// TODO: handle exception
+    		return null;
+		}
+		
 	}
     
-    public String getExportedRole(String accessToken)
+    public static String getDomainURL(String accessToken)
 	{
-		String returnValue = null;
-		try 
-		{		
-			String urlRBAC = getURLRBAC(accessToken);
-			String rbacURL = urlRBAC + "wallet";
-			rbacURL += "?";
-			rbacURL += "token=" + accessToken;
-			rbacURL += "&";
-			rbacURL += "type=1";
-			
-			HTTPRequest httpRequest = new HTTPRequest(Method.GET, new URL(rbacURL));
-			HTTPResponse httpResponse = httpRequest.send();
+    	try
+    	{
+    		String validation = validarToken(accessToken);
+        	
+    		JSONObject jTokens = new JSONObject(validation);	
+    		if( !jTokens.has("scope") )
+    			return null;
 
-			returnValue = httpResponse.getContent();
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-    		System.out.println(e.getMessage());
-			e.printStackTrace();
-			
-		}		
-		return returnValue;
-	}
-    
-    public String getURLRBAC(String accessToken)
-	{
-		String returnValue = null;
-		try 
-		{					
-			UserInfoRequest userInfoReq = new UserInfoRequest(new URI("https://domain-c:8443/c2id/userinfo"), new BearerAccessToken(accessToken));		
-			HTTPRequest httpRequest = userInfoReq.toHTTPRequest();
-			HTTPResponse httpResponse = httpRequest.send();
-			UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
-
-			if (userInfoResponse instanceof UserInfoErrorResponse) 
-			{
-				UserInfoErrorResponse userInfoErrorResponse = (UserInfoErrorResponse)userInfoResponse;
-
-				String msg = "[ " + userInfoErrorResponse.getErrorObject().getCode() + " ] ";
-				msg += userInfoErrorResponse.getErrorObject().getDescription();		
-				ExternalDomain = "";
-	    		System.out.println("Error: " + msg);
-			}
-			else
-			{
-				UserInfoSuccessResponse userInfoSuccessResponse = (UserInfoSuccessResponse)userInfoResponse;
-				UserInfo user = userInfoSuccessResponse.getUserInfo();	
-				String home = user.getStringClaim("home");
-				String rbac_home = user.getStringClaim("rbac_home");
-
-				ExternalDomain = home;
-				returnValue = rbac_home;
-			}	
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-    		System.out.println(e.getMessage());
-			e.printStackTrace();
-			
-		}		
-		return returnValue;
-	} */
-    
-    public String getRBACURL(String token) throws Exception
-	{
-		String prefix = "https://localhost:8443/securitycontrols/api/";
-		String url = prefix + "user-information?accessToken=" + token;
-		String response = sendGet(url);
-		JSONObject jResponse = new JSONObject(response);	
-		String rbacUrl = jResponse.getString("profile");
-		return rbacUrl;
+    		String[] scopes = jTokens.getString("scope").split(" ");
+    		
+    		for(String s : scopes )
+    		{
+    			if( s.equals("furnas") )
+    			{
+    				return "https://localhost:8443/securitycontrols/furnas/";
+    			}
+    			else if( s.equals("copel") )
+    			{
+    				return "https://localhost:8443/securitycontrols/copel/";
+    			}
+    		}
+    		return null;
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println("Deu pau: " + e.getMessage());
+    		e.printStackTrace();
+    		return null;
+    	}    	
 	}
     
     public static String sendGet(String url) throws Exception {

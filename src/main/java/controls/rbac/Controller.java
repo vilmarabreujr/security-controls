@@ -10,6 +10,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.wso2.carbon.um.ws.api.stub.AddUser;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
 
 import controls.domains.Domain;
@@ -372,7 +373,7 @@ public class Controller
         }
 	}
 	
-	public List<ExportedRole> getExportedRole(List<String> registeredRoles, String domain)
+	public List<ExportedRole> getExportedRoles(List<String> registeredRoles, String domain)
 	{
 		List<ExportedRole> listExported = new ArrayList<ExportedRole>();
 		for( int i = 0; i < listRoles.size(); i++ )
@@ -389,6 +390,26 @@ public class Controller
 			}
 		}
 		return listExported;
+	}
+	
+	public Role getAssociatedRole(String exportedRole)
+	{
+		Role associatedRole = null;
+		for( int i = 0; i < listRoles.size(); i++ )
+		{
+			Role current = listRoles.get(i);
+			if( current instanceof ExportedRole )
+			{
+				ExportedRole exported = (ExportedRole)current;
+				if( exported.getId().equals(exportedRole) )
+				{
+					String str = exported.getOriginalRole();
+					associatedRole = getRole(str);
+					return associatedRole;
+				}
+			}
+		}
+		return associatedRole;
 	}
 	
 	public boolean setRegisterRole(Role r, boolean enableImportation)
@@ -412,5 +433,63 @@ public class Controller
 		}
 		return listRegistered;
 	}
+	
+	public boolean hasActiveUsers(Role originalRole)
+	{
+		for(User u : listUsers )
+		{
+			Session session = getSession(u.getId());
+			if( session != null )
+			{
+				if( session.getListRoles().contains(originalRole) )
+				{
+					return true;
+				}
+			}			
+		}
+		return false;
+	}
 
+	public String AddActiveExportedRole(String userString, String roleString)
+	{
+		User user = getUser(userString);
+		if( user == null )
+		{
+        	user = new User(userString);
+        	listUsers.add(user);
+		}
+		Role role = getRole(roleString);
+		if( role == null )
+		{
+			return "{\"error\": \"Invalid role.\"}";
+		}
+		if( !CheckUserAssignment(user, role) )
+		{
+			UserAssignment(user, role);
+		}
+		Session session = getSession(userString);
+		if( session == null )
+		{
+			session = new Session(user);
+			listSession.add(session);
+		}		
+
+		//Verificar se o papel já foi ativado
+		if( session.getListRoles().contains(role) )
+		{
+			return "{\"error\": \"Exported role already activate.\"}";
+		}
+		//VERIFICAR O SOD DINAMICO NESSE PONTO
+		List<Role> activeRoles = session.getListRoles();
+		for( int i = 0; i < activeRoles.size(); i++ )
+		{
+			Role active = activeRoles.get(i);
+			if( isDynamicSepartionOfDuty(active, role) )
+			{
+				return "{\"error\": \"Can't activate this role, SoD with the role " + active.getId() + "\"}";
+			}
+		}		
+		session.getListRoles().add(role);
+		return "{\"sucess\": \"Exported role is activated!\"}";
+	}
 }

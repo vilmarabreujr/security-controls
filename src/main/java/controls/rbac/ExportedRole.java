@@ -11,6 +11,9 @@ public class ExportedRole extends Role{
 	public String getRegisteredRole() {
 		return registeredRole;
 	}
+	public String getOriginalRole() {
+		return originalRole;
+	}
 	public ExportedRole(String id, String originalRole, String registeredRole, String domain) {
 		super(id);
 		this.domain = domain;
