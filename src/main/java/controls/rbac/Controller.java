@@ -31,7 +31,6 @@ public class Controller
 		listSession = new ArrayList<Session>();
 		dynamicConstraints = new ArrayList<Constraint>();
 		adminStub = null;
-
 		XACMLProperties properties = XACMLProperties.init(d);
 		LoadWSo2(properties.getServerUrl() + "RemoteUserStoreManagerService", properties.getServerUsername(), properties.getServerPassword(), properties.getDomain());
 	}
@@ -151,14 +150,17 @@ public class Controller
             	for( int j = 0; j < roles.length; j++ )
                 {
                 	String roleString = roles[j];
-                	Role role = getRole(roleString);                	
-                	if( role == null )
+                	if(!roleString.equals("Internal/everyone"))
                 	{
-                		//New role
-                		role = new Role(roleString);
-                    	listRoles.add(role);
+                    	Role role = getRole(roleString);                	
+                    	if( role == null )
+                    	{
+                    		//New role
+                    		role = new Role(roleString);
+                        	listRoles.add(role);
+                    	}
+                    	UserAssignment(user, role);
                 	}
-                	UserAssignment(user, role);
                 }
             }          
     		return true;         

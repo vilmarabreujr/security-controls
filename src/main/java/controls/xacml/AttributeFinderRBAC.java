@@ -174,6 +174,10 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     			{
     				return "https://localhost:8443/securitycontrols/copel/";
     			}
+    			else if( s.equals("eletrobras") )
+    			{
+    				return "https://localhost:8443/securitycontrols/eletrobras/";
+    			}
     		}
     		return null;
     	}

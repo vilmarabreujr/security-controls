@@ -30,8 +30,10 @@ public class DomainController
 	{
 		Domain d1 = new Domain("copel", "COPEL");
 		Domain d2 = new Domain("furnas", "FURNAS");
+		Domain d3 = new Domain("eletrobras", "ELETROBRAS");
 		domains.add(d1);
 		domains.add(d2);
+		domains.add(d3);
 	}
 	public boolean isTrustDomain(String domain)
 	{

@@ -14,6 +14,12 @@ import util.HttpConnection;
 import util.JWT;
 
 public class GENERAL {
+	
+	public static String AuthenticateDefault(AuthProperties p, String user) throws Exception
+	{
+		return Authenticate(p,user,"secret");
+	}
+	
 	public static String Authenticate(AuthProperties p, String user, String password) throws Exception
 	{		
 		String clientID = p.getConsumerKey();
