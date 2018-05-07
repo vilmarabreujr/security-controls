@@ -24,7 +24,7 @@ cp -r $webClientDir/build/static/* \
 
 # Copy html
 looked_for='/static/js/'
-replacement='/wso2Example/static/js/'
+replacement='/securitycontrols/static/js/'
 html=`cat $webClientDir/build/index.html`
 html=${html/$looked_for/$replacement}
 
