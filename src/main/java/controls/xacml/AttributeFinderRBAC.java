@@ -52,7 +52,7 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     @Override
     public Set<String> getAttributeValues(String subjectId, String resourceId, String actionId,
                                           String environmentId, String attributeId, String issuer) throws Exception{
-    	System.out.println("PIP personalizado!");
+    	System.out.println("------------------PIP personalizado!");
     	if(!ACTIVE_ROLE_ID.equals(attributeId) && !WALLET_ROLE_ID.equals(attributeId) ){
             return null;
         }
@@ -103,6 +103,13 @@ public class AttributeFinderRBAC extends AbstractPIPAttributeFinder {
     	{
     		EstruturaBD = new HashMap<String, Set<String>>();
     		System.out.println("Resetou hash");
+    	}
+    	
+    	System.out.println("Valores do PIP!");
+    	
+    	for( String s : values)
+    	{
+    		System.out.println(s);
     	}
     	
 		return values;

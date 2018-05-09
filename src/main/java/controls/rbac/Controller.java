@@ -14,6 +14,7 @@ import org.wso2.carbon.um.ws.api.stub.AddUser;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
 
 import controls.domains.Domain;
+import process.RandomProcess;
 import util.XACMLProperties;
 
 public class Controller 
@@ -79,6 +80,11 @@ public class Controller
 		}
 		return null;
 	}
+	
+	public List<Role> getRoles()
+	{
+		return listRoles;
+	}
 		
 	public void UserAssignment(User user, Role role)
 	{
@@ -140,28 +146,35 @@ public class Controller
         	carregarStub(serviceEndPoint, adminUser, adminPassword);
 
             String[] users = adminStub.listUsers("*", 10000);
+            
+            List<String> listaUsuariosTeste = RandomProcess.getUsers();
+            
             for( int i = 0; i < users.length; i++ )
             {
             	String userString = users[i];
-            	User user = new User(userString + "@" + domain);
-            	listUsers.add(user);
-            	//Search user roles
-            	String[] roles = adminStub.getRoleListOfUser(userString);
-            	for( int j = 0; j < roles.length; j++ )
-                {
-                	String roleString = roles[j];
-                	if(!roleString.equals("Internal/everyone"))
-                	{
-                    	Role role = getRole(roleString);                	
-                    	if( role == null )
+            	if( listaUsuariosTeste.contains(userString) )
+            	{
+                	System.out.println(domain + " - " + i + "/" + users.length);
+                	User user = new User(userString + "@" + domain);
+                	listUsers.add(user);
+                	//Search user roles
+                	String[] roles = adminStub.getRoleListOfUser(userString);
+                	for( int j = 0; j < roles.length; j++ )
+                    {
+                    	String roleString = roles[j];
+                    	if(!roleString.equals("Internal/everyone"))
                     	{
-                    		//New role
-                    		role = new Role(roleString);
-                        	listRoles.add(role);
+                        	Role role = getRole(roleString);                	
+                        	if( role == null )
+                        	{
+                        		//New role
+                        		role = new Role(roleString);
+                            	listRoles.add(role);
+                        	}
+                        	UserAssignment(user, role);
                     	}
-                    	UserAssignment(user, role);
-                	}
-                }
+                    }
+            	}
             }          
     		return true;         
         } 

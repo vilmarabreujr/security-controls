@@ -25,7 +25,7 @@ public class RegisterUsersDomain
 	{
 		DomainController domains = DomainController.getInstance();
 		
-		String domainName = "eletrobras";
+		String domainName = "copel";
 		Domain d = domains.getDomain(domainName);
 		prop = AuthProperties.init(d);
 		List<String> usuarios = RandomProcess.getUsers();

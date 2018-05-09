@@ -39,9 +39,9 @@ public class COPEL_SCADA
 		
 		domainName = "furnas";
 		d = domains.getDomain(domainName);
-		propRemote = AuthProperties.init(d);
-		
+		propRemote = AuthProperties.init(d);		
 	}
+	
 	public static AuthProperties prop;
 	public static AuthProperties propRemote;	
 	

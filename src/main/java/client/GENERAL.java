@@ -26,6 +26,7 @@ public class GENERAL {
 		String clientPWD = p.getConsumerSecret();
 		URL obj = new URL(p.getTokenEndpoint());
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		System.out.println(p.getTokenEndpoint());
 
 		// optional default is GET
 		con.setRequestMethod("POST");
@@ -221,6 +222,7 @@ public class GENERAL {
 	public static String requestAccess(AuthProperties prop,String token, String resource, String action) throws Exception
 	{
 		String url = prop.getSecurityControlsURL() + "access-control?accessToken=" + token + "&resource=" + resource + "&action=" + action;
+		System.out.println(url);
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
@@ -245,7 +247,13 @@ public class GENERAL {
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
-	
+
+	public static String getDomainRoles(AuthProperties prop,String token) throws Exception
+	{
+		String url = prop.getSecurityControlsURL() + "rbac/domain?accessToken=" + token;
+		String response = HttpConnection.sendGet(url);
+		return response;
+	}
 	public static String getRegisteredRoles(AuthProperties prop,String token) throws Exception
 	{
 		String url = prop.getSecurityControlsURL() + "wallet/registered?accessToken=" + token;

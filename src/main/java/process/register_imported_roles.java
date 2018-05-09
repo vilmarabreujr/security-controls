@@ -2,12 +2,13 @@ package process;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import client.GENERAL;
 import controls.domains.Domain;
 import controls.domains.DomainController;
 import util.AuthProperties;
 
-public class local_access extends Thread
+public class register_imported_roles  extends Thread
 {	
 	public void run()
 	{
@@ -29,8 +30,8 @@ public class local_access extends Thread
 		Domain d = domains.getDomain(domainName);
 		prop = AuthProperties.init(d);		
 				
-		String randomUser = RandomProcess.getRandomUser() + "@" + domainName + ".com";
-		LOGGING.print("User:" + randomUser);
+		String randomUser = "alice" + "@" + domainName + ".com";
+		System.out.println("User:" + randomUser);
 		String authenticationCode = GENERAL.AuthenticateDefault(prop,randomUser);
 		String code = GENERAL.getCode(prop,authenticationCode);
 		String tokens = GENERAL.getTokens(prop, code);
@@ -40,23 +41,24 @@ public class local_access extends Thread
 		String idToken = jTokens.getString("id_token");
 						
 		//TESTAR A PESQUISA DE PAPÉIS
-		LOGGING.print("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
+		System.out.println("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
 		String content = GENERAL.getRoles(prop,accessToken);		
-		LOGGING.print("Avaliable roles: " + content);
+		System.out.println("Avaliable roles: " + content);
 		
+		String activeRole = "admin";
+		System.out.println("Selected role: " + activeRole);
+		
+		System.out.println(GENERAL.addActivateRoles(prop,accessToken,activeRole));
+		content = GENERAL.getDomainRoles(prop,accessToken);
 		JSONObject jObject = new JSONObject(content);
-		JSONArray listRoles = jObject.getJSONArray("roles");
+		JSONArray listRoles = jObject.getJSONArray("domainroles");
 		int randomRole = RandomProcess.nextInt(listRoles.length());
 		JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
 		jCurrent = (JSONObject)jCurrent.get("role");
-		String activeRole = jCurrent.getString("id");
-		LOGGING.print("Selected role:" + activeRole);
-		
-		LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));
-		LOGGING.print(GENERAL.getActivateRoles(prop,accessToken));	
-		String resource = RandomProcess.getRandomResource();
-		String action = RandomProcess.getRandomAction();
-		LOGGING.print(GENERAL.requestAccess(prop,accessToken, resource, action));
-		LOGGING.print(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
+		String importedRole = jCurrent.getString("id");		
+
+		System.out.println(GENERAL.setRegisteredRoles(prop,accessToken, importedRole));
+		System.out.println(GENERAL.getRegisteredRoles(prop,accessToken));
+		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 	}
 }

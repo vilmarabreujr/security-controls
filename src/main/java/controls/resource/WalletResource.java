@@ -45,11 +45,37 @@ public class WalletResource {
 			DomainController domains = DomainController.getInstance();
 			for( Domain d : domains.getDomains() )
 			{
-				PolicyManager controllerRBAC = new PolicyManager(d);
-				policyManagers.put(d, controllerRBAC);
+				PolicyManager policyManager = new PolicyManager(d);
+				policyManagers.put(d, policyManager);
 			}
 			
 		}
+	}
+
+	private static WalletResource inst;
+	public static WalletResource getInst()
+	{
+		if( inst == null )
+		{
+			try {
+				inst = new WalletResource();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return inst;
+	}
+	
+	public int deleteAllDynamicPolicies()
+	{
+		int count = 0;
+		for( Domain domain : policyManagers.keySet() )
+		{
+			PolicyManager policyManager = policyManagers.get(domain);
+			count += policyManager.deleteAllDynamicPolicies();
+		}
+		return count;
 	}
 
 	private PolicyManager getPolicyManager(HttpServletRequest httpRequest)
@@ -338,6 +364,12 @@ public class WalletResource {
 			{
 	            return Response.ok("{\"error\": \"Invalid role.\"}").build();
 			}
+			
+			boolean isAdmin = RBACResource.getInst().isAdministrator(token, httpRequest);
+			if(!isAdmin )
+			{
+                return Response.ok("{\"error\": \"The user must be an administrator\"}").build();
+			}			
 			
 			//Criar um papel temporario
 			boolean process = controllerRBAC.setRegisterRole(registeredRole, true);

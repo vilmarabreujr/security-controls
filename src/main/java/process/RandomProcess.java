@@ -12,7 +12,7 @@ public class RandomProcess
 		int index = r.nextInt(limit);
 		return index;		
 	}
-	
+
 	public static synchronized List<String> getDomains()
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -58,6 +58,29 @@ public class RandomProcess
 	public static synchronized String getRandomRole()
 	{
 		List<String> list = getRoles();
+		Random r = new Random();
+		int index = r.nextInt(list.size());
+		return list.get(index);		
+	}
+	
+	public static synchronized String getRandomResource()
+	{
+		return "button";		
+	}
+	
+	public static synchronized String getRandomAction()
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("read");
+		list.add("read");
+		list.add("write");
+		list.add("write");
+		list.add("update");
+		list.add("read");
+		list.add("read");
+		list.add("write");
+		list.add("write");
+		list.add("update");
 		Random r = new Random();
 		int index = r.nextInt(list.size());
 		return list.get(index);		
@@ -109,7 +132,7 @@ public class RandomProcess
 		Lista.add("pavel");
 		Lista.add("quasim");
 		Lista.add("rebecca");
-		Lista.add("sam");
+		/*Lista.add("sam");
 		Lista.add("tim");
 		Lista.add("uriel");
 		Lista.add("vabreu");
@@ -190,7 +213,11 @@ public class RandomProcess
 		Lista.add("rebecca_junior_abreu");
 		Lista.add("sam_junior_abreu");
 		Lista.add("tim_junior_abreu");
-		Lista.add("uriel_junior_abreu");
+		Lista.add("uriel_junior_abreu");*/
+		
+		
+		
+		
 		/*Lista.add("vabreu_junior_abreu");
 		Lista.add("vilmar_junior_abreu");
 		Lista.add("xandra_junior_abreu");

@@ -38,7 +38,7 @@ public class RBACResource
 		return controllerRBAC;
 	}
 	
-	public static RBACResource inst;
+	private static RBACResource inst;
 	
 
 	public static RBACResource getInst()
@@ -338,6 +338,90 @@ public class RBACResource
 	            return Response.ok("{\"sucess\": \"SoD removed!\"}").build();
 			}
 
+            
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
+    }
+    
+    public boolean isAdministrator(String token, HttpServletRequest httpRequest)
+    {
+    	TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
+        
+        try {
+            boolean isTokenValid = service.isTokenValid(token);
+            if( !isTokenValid )
+                return false;
+            
+            String subject = service.getSubject();
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
+            User u = controllerRBAC.getUser(subject);
+			if( u == null )
+			{
+                return false;
+			}
+
+			Session s = controllerRBAC.getSession(subject);
+			
+			if( s != null )
+			{
+				boolean isAdmin = false;
+				for( int i = 0; i < s.getListRoles().size(); i++ )
+				{
+					Role role = s.getListRoles().get(i);
+					if( role.getId().equals("admin") )
+					{
+						isAdmin = true;
+					}
+				}	
+				return isAdmin;
+			}
+
+            return false;
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    @GET
+    @Path("domain")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDomainRoles(@QueryParam("accessToken") String token,@Context HttpServletRequest httpRequest) {
+        TokenValidationService service = new TokenValidationService(AuthProperties.init(httpRequest));
+        
+        try {
+            boolean isTokenValid = service.isTokenValid(token);
+            if( !isTokenValid )
+                return Response.ok(new TokenValidationResponse(isTokenValid,"invalid","invalid")).build();
+            
+            String subject = service.getSubject();
+
+            Controller controllerRBAC = getControllerRBAC(httpRequest);
+            User u = controllerRBAC.getUser(subject);
+			if( u == null )
+			{
+                return Response.ok("{\"error\": \"Invalid subject\"}").build();
+			}
+			boolean isAdmin = isAdministrator(token, httpRequest);	
+			if(!isAdmin )
+			{
+                return Response.ok("{\"error\": \"The user must be an administrator\"}").build();
+			}
+						
+			String response = "{\"domainroles\": [";
+			List<Role> list = controllerRBAC.getRoles();
+			for( int i = 0; i < list.size(); i++ )
+			{
+				Role role = list.get(i);
+				response += role.toString();
+				//se nao for o ultimo
+				if( i < list.size() -1 )
+					response += ", ";
+			}
+			response += "]}";
+            return Response.ok(response).build();
             
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();

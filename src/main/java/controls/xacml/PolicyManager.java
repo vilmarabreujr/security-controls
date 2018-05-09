@@ -235,6 +235,32 @@ public class PolicyManager
         }
 	}
 	
+	public int deleteAllDynamicPolicies()
+	{
+        try {   
+        	int count = 0;
+        	String[] policies = policyAdminStub.getAllPolicyIds("");
+        	for( String policyID : policies )
+        	{
+        		if( policyID.startsWith("DynamicPolicy"))
+        		{
+            		System.out.println("Deletar:" + policyID);
+        			DeletePolicy(policyID);
+        			count++;
+        		}
+        	}
+            
+            return count;
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("\nError :  " + e.getMessage());
+            e.printStackTrace();
+            authCookie = null;
+            return -1;
+        }
+	}
+	
 	private  String getTemplatePolicy(String policyID, String role, Map<String, ArrayList<String>> permissions){
 		String policy = 
 					"<Policy xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\"  PolicyId=\"" + policyID + "\" RuleCombiningAlgId=\"urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable\" Version=\"1.0\">"+
@@ -280,41 +306,5 @@ public class PolicyManager
 		policy += 	"   <Rule Effect=\"Deny\" RuleId=\"denyall\"></Rule>"+
 					"</Policy>"     ;   
 		return policy;
-    }
-	
-	private  String getTemplatePolicy(String policyID, String role, String resource, String action){
-
-        return "<Policy xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" PolicyId=\"" + policyID + "\" RuleCombiningAlgId=\"urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable\" Version=\"1.0\">\n" +
-                "   <Target>\n" +
-                "      <AnyOf>\n" +
-                "         <AllOf>\n" +
-                "            <Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n" +
-                "               <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + resource + "</AttributeValue>\n" +
-                "               <AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"/>\n" +
-                "            </Match>\n" +
-                "         </AllOf>\n" +
-                "      </AnyOf>\n" +
-                "   </Target>\n" +
-                "   <Rule Effect=\"Permit\" RuleId=\"Rule-1\">\n" +
-                "      <Target>\n" +
-                "         <AnyOf>\n" +
-                "            <AllOf>\n" +
-                "               <Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n" +
-                "                  <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + action + "</AttributeValue>\n" +
-                "                  <AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"/>\n" +
-                "               </Match>\n" +
-                "            </AllOf>\n" +
-                "         </AnyOf>\n" +
-                "      </Target>\n" +
-                "      <Condition>\n" +
-                "         <Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:any-of\">\n" +
-                "            <Function FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\"/>\n" +
-                "            <AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + role + "</AttributeValue>\n" +
-                "            <AttributeDesignator AttributeId=\"rbac_active_role\" Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\"/>\n" +
-                "         </Apply>\n" +
-                "      </Condition>\n" +
-                "   </Rule>\n" +
-                "   <Rule Effect=\"Deny\" RuleId=\"Deny-Rule\"/>\n" +
-                "</Policy> ";
     }
 }

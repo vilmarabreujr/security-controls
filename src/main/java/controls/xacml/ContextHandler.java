@@ -68,6 +68,7 @@ public class ContextHandler
             
             if( authCookie == null )
             {
+                System.out.println("novo oauth cookie");
                 /**
                  * Setting basic auth headers for authentication for user admin
                  */
@@ -77,9 +78,7 @@ public class ContextHandler
                 auth.setPreemptiveAuthentication(true);
                 option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
             }
-            System.out.println(serviceEndPoint);
-            System.out.println(properties.getServerUsername());
-            System.out.println(properties.getServerPassword());
+            System.out.println("token: " + token + "resource: " + resource + ", action: " + action);
             String decision = entitlementServiceStub.getDecisionByAttributes(token, resource, action, null);
             System.out.println(decision);
             System.out.println(XML.toJSONObject(decision).toString());
