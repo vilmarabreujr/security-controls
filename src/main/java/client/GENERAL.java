@@ -9,6 +9,11 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.json.JSONObject;
+
+import controls.rbac.User;
+import crypto.Base_64;
+import crypto.RSA;
+import process.LOGGING;
 import util.AuthProperties;
 import util.HttpConnection;
 import util.JWT;
@@ -26,7 +31,7 @@ public class GENERAL {
 		String clientPWD = p.getConsumerSecret();
 		URL obj = new URL(p.getTokenEndpoint());
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		System.out.println(p.getTokenEndpoint());
+		LOGGING.print(p.getTokenEndpoint());
 
 		// optional default is GET
 		con.setRequestMethod("POST");
@@ -98,7 +103,6 @@ public class GENERAL {
 		in.close();
 		//print result
 		String location = con.getHeaderField("Location");
-		System.out.println(location);
 		URI uri = new URI(location);		
 		String code = HttpConnection.getParameter(uri.getQuery(), "code");		
 		return code;
@@ -141,7 +145,7 @@ public class GENERAL {
 			response.append(inputLine);
 		}
 		in.close();
-		System.out.println(response);
+		LOGGING.print(response.toString());
 		//print result
 		return response.toString();
 	}
@@ -151,8 +155,8 @@ public class GENERAL {
 		JSONObject jTokens = new JSONObject(tokens);	
 		String accessToken = jTokens.getString("access_token");
 		String idToken = jTokens.getString("id_token");		
-		System.out.println("acessToken: " + accessToken);
-		System.out.println("idToken: " + idToken);
+		LOGGING.print("acessToken: " + accessToken);
+		LOGGING.print("idToken: " + idToken);
 		JWT.processToken(idToken);
 	}
 	
@@ -222,7 +226,7 @@ public class GENERAL {
 	public static String requestAccess(AuthProperties prop,String token, String resource, String action) throws Exception
 	{
 		String url = prop.getSecurityControlsURL() + "access-control?accessToken=" + token + "&resource=" + resource + "&action=" + action;
-		System.out.println(url);
+		LOGGING.print(url);
 		String response = HttpConnection.sendGet(url);
 		return response;
 	}
@@ -273,5 +277,30 @@ public class GENERAL {
 		String url = prop.getSecurityControlsURL() + "wallet?accessToken=" + token + "&exportedRole=" + exportedRole + "&signedRole=" + signedRole;
 		String response = HttpConnection.sendPut(url);
 		return response;
+	}
+	
+	public static String buildRemoteScope(AuthProperties prop, String user, String roles)
+	{
+		String complemento = "";
+
+		try 
+		{
+			User u = new User(user);
+			String kpu = RSA.publicKeyToString(u.getPublicKey());
+				
+			//String kpu = user + "_public.key";
+			JSONObject jComplemento = new JSONObject(roles);
+			jComplemento.append("kpu", kpu);
+			complemento = jComplemento.toString();	
+			complemento = Base_64.encode(complemento.getBytes());
+		} 
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String scope = prop.getScope() + " " + complemento;	
+				
+		return scope;
 	}
 }

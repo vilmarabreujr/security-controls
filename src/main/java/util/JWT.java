@@ -10,6 +10,9 @@ import java.security.interfaces.RSAPublicKey;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
+
+import process.LOGGING;
+
 import org.apache.commons.codec.binary.Base64;
 
 public class JWT 
@@ -56,10 +59,10 @@ public class JWT
 		{
 			String[] list = tokenString.split("\\.");
 			byte[] header = Base64.decodeBase64(list[0]);
-			System.out.println("\t" + new String(header, "UTF-8"));
+			LOGGING.print("\t" + new String(header, "UTF-8"));
 
 			byte[] body = Base64.decodeBase64(list[1]);
-			System.out.println("\t" + new String(body, "UTF-8"));			
+			LOGGING.print("\t" + new String(body, "UTF-8"));			
 
 			//ValidateToken(tokenString);					
 		}

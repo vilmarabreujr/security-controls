@@ -12,7 +12,7 @@ public class local_access extends Thread
 	public void run()
 	{
 		try {
-			for(int i = 0; i < 10; i++)
+			for(int i = 0; i < 1000; i++)
 				go();
 		} 
 		catch (java.lang.Exception e) {
@@ -21,6 +21,25 @@ public class local_access extends Thread
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	public String getRandomRole(String content)
+	{
+		JSONObject jObject = new JSONObject(content);
+		
+		for( String key : jObject.keySet() )
+		{
+			JSONArray listRoles = jObject.getJSONArray(key);
+			if( listRoles == null || listRoles.length() == 0 )
+				return null;
+			int randomRole = RandomProcess.nextInt(listRoles.length());
+			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
+			jCurrent = (JSONObject)jCurrent.get("role");
+			String selectedRole = jCurrent.getString("id");
+			return selectedRole;
+		}
+		return null;
+	}
+	
 	public void go() throws java.lang.Exception
 	{
 		AuthProperties prop;
@@ -41,22 +60,24 @@ public class local_access extends Thread
 						
 		//TESTAR A PESQUISA DE PAPÉIS
 		LOGGING.print("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
-		String content = GENERAL.getRoles(prop,accessToken);		
-		LOGGING.print("Avaliable roles: " + content);
+		String content = GENERAL.getRoles(prop,accessToken);	
+		LOGGING.print("roles: " + content);
 		
-		JSONObject jObject = new JSONObject(content);
-		JSONArray listRoles = jObject.getJSONArray("roles");
-		int randomRole = RandomProcess.nextInt(listRoles.length());
-		JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
-		jCurrent = (JSONObject)jCurrent.get("role");
-		String activeRole = jCurrent.getString("id");
+		String activeRole = getRandomRole(content);
+		if( activeRole == null )
+		{
+			content = GENERAL.getActivateRoles(prop,accessToken);
+			activeRole = getRandomRole(content);
+		}
+		else
+		{
+			LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));	
+		}
 		LOGGING.print("Selected role:" + activeRole);
-		
-		LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));
 		LOGGING.print(GENERAL.getActivateRoles(prop,accessToken));	
 		String resource = RandomProcess.getRandomResource();
 		String action = RandomProcess.getRandomAction();
-		LOGGING.print(GENERAL.requestAccess(prop,accessToken, resource, action));
+		LOGGING.printAlways("Acesso local:" + GENERAL.requestAccess(prop,accessToken, resource, action));
 		LOGGING.print(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 	}
 }

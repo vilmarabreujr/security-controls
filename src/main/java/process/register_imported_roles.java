@@ -13,7 +13,7 @@ public class register_imported_roles  extends Thread
 	public void run()
 	{
 		try {
-			for(int i = 0; i < 10; i++)
+			for(int i = 0; i < 1000; i++)
 				go();
 		} 
 		catch (java.lang.Exception e) {
@@ -31,7 +31,6 @@ public class register_imported_roles  extends Thread
 		prop = AuthProperties.init(d);		
 				
 		String randomUser = "alice" + "@" + domainName + ".com";
-		System.out.println("User:" + randomUser);
 		String authenticationCode = GENERAL.AuthenticateDefault(prop,randomUser);
 		String code = GENERAL.getCode(prop,authenticationCode);
 		String tokens = GENERAL.getTokens(prop, code);
@@ -41,12 +40,12 @@ public class register_imported_roles  extends Thread
 		String idToken = jTokens.getString("id_token");
 						
 		//TESTAR A PESQUISA DE PAPÉIS
-		System.out.println("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
+		LOGGING.print("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
 		String content = GENERAL.getRoles(prop,accessToken);		
-		System.out.println("Avaliable roles: " + content);
+		LOGGING.print("Avaliable roles: " + content);
 		
 		String activeRole = "admin";
-		System.out.println("Selected role: " + activeRole);
+		LOGGING.print("Selected role: " + activeRole);
 		
 		System.out.println(GENERAL.addActivateRoles(prop,accessToken,activeRole));
 		content = GENERAL.getDomainRoles(prop,accessToken);
@@ -57,8 +56,8 @@ public class register_imported_roles  extends Thread
 		jCurrent = (JSONObject)jCurrent.get("role");
 		String importedRole = jCurrent.getString("id");		
 
-		System.out.println(GENERAL.setRegisteredRoles(prop,accessToken, importedRole));
-		System.out.println(GENERAL.getRegisteredRoles(prop,accessToken));
-		System.out.println(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
+		LOGGING.print(GENERAL.setRegisteredRoles(prop,accessToken, importedRole));
+		LOGGING.print(GENERAL.getRegisteredRoles(prop,accessToken));
+		LOGGING.print(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 	}
 }
