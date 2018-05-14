@@ -14,7 +14,7 @@ public class export_roles extends Thread
 	public void run()
 	{
 		try {
-			for(int i = 0; i < 1; i++)
+			for(int i = 0; i < 1000; i++)
 				go();
 		} 
 		catch (java.lang.Exception e) {
@@ -22,6 +22,23 @@ public class export_roles extends Thread
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
+	}
+	public String getRandomRole(String content)
+	{
+		JSONObject jObject = new JSONObject(content);
+		
+		for( String key : jObject.keySet() )
+		{
+			JSONArray listRoles = jObject.getJSONArray(key);
+			if( listRoles == null || listRoles.length() == 0 )
+				return null;
+			int randomRole = RandomProcess.nextInt(listRoles.length());
+			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
+			jCurrent = (JSONObject)jCurrent.get("role");
+			String selectedRole = jCurrent.getString("id");
+			return selectedRole;
+		}
+		return null;
 	}
 	public void go() throws java.lang.Exception
 	{
@@ -46,15 +63,16 @@ public class export_roles extends Thread
 		String content = GENERAL.getRoles(prop,accessToken);		
 		LOGGING.print("Avaliable roles: " + content);
 		
-		JSONObject jObject = new JSONObject(content);
-		JSONArray listRoles = jObject.getJSONArray("roles");
-		int randomRole = RandomProcess.nextInt(listRoles.length());
-		JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
-		jCurrent = (JSONObject)jCurrent.get("role");
-		String activeRole = jCurrent.getString("id");
-		LOGGING.print("Selected role:" + activeRole);
-		
-		LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));
+		String activeRole = getRandomRole(content);
+		if( activeRole == null )
+		{
+			content = GENERAL.getActivateRoles(prop,accessToken);
+			activeRole = getRandomRole(content);
+		}
+		else
+		{
+			LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));	
+		}
 		LOGGING.print(GENERAL.getActivateRoles(prop,accessToken));		
 
 		content = GENERAL.getTrustedDomains(prop,accessToken);
@@ -68,12 +86,7 @@ public class export_roles extends Thread
 		//Processo de exportação
 		content = GENERAL.getRegisteredRoles(propRemote,accessToken);
 		LOGGING.print("Registered roles:" + content);
-		jObject = new JSONObject(content);
-		listRoles = jObject.getJSONArray("registeredroles");
-		randomRole = RandomProcess.nextInt(listRoles.length());
-		jCurrent = (JSONObject)listRoles.get(randomRole);
-		jCurrent = (JSONObject)jCurrent.get("role");
-		String registeredRole = jCurrent.getString("id");
+		String registeredRole = getRandomRole(content);		
 		LOGGING.print("Domain:" + externalDomain + " associate role: " + registeredRole);
 		LOGGING.printAlways(GENERAL.exportRole(prop,accessToken, activeRole,externalDomain, registeredRole));
 		

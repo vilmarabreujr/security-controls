@@ -22,6 +22,23 @@ public class register_imported_roles  extends Thread
 			System.out.println(e.getMessage());
 		}
 	}
+	public String getRandomRole(String content)
+	{
+		JSONObject jObject = new JSONObject(content);
+		
+		for( String key : jObject.keySet() )
+		{
+			JSONArray listRoles = jObject.getJSONArray(key);
+			if( listRoles == null || listRoles.length() == 0 )
+				return null;
+			int randomRole = RandomProcess.nextInt(listRoles.length());
+			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
+			jCurrent = (JSONObject)jCurrent.get("role");
+			String selectedRole = jCurrent.getString("id");
+			return selectedRole;
+		}
+		return null;
+	}
 	public void go() throws java.lang.Exception
 	{
 		AuthProperties prop;
@@ -47,7 +64,7 @@ public class register_imported_roles  extends Thread
 		String activeRole = "admin";
 		LOGGING.print("Selected role: " + activeRole);
 		
-		System.out.println(GENERAL.addActivateRoles(prop,accessToken,activeRole));
+		LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));
 		content = GENERAL.getDomainRoles(prop,accessToken);
 		JSONObject jObject = new JSONObject(content);
 		JSONArray listRoles = jObject.getJSONArray("domainroles");
@@ -56,7 +73,7 @@ public class register_imported_roles  extends Thread
 		jCurrent = (JSONObject)jCurrent.get("role");
 		String importedRole = jCurrent.getString("id");		
 
-		LOGGING.print(GENERAL.setRegisteredRoles(prop,accessToken, importedRole));
+		LOGGING.printAlways(GENERAL.setRegisteredRoles(prop,accessToken, importedRole));
 		LOGGING.print(GENERAL.getRegisteredRoles(prop,accessToken));
 		LOGGING.print(GENERAL.dropActivateRoles(prop,accessToken,activeRole));
 	}

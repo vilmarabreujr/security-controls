@@ -24,6 +24,23 @@ public class remote_access extends Thread
 			System.out.println(e.getMessage());
 		}
 	}
+	public String getRandomRole(String content)
+	{
+		JSONObject jObject = new JSONObject(content);
+		
+		for( String key : jObject.keySet() )
+		{
+			JSONArray listRoles = jObject.getJSONArray(key);
+			if( listRoles == null || listRoles.length() == 0 )
+				return null;
+			int randomRole = RandomProcess.nextInt(listRoles.length());
+			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
+			jCurrent = (JSONObject)jCurrent.get("role");
+			String selectedRole = jCurrent.getString("id");
+			return selectedRole;
+		}
+		return null;
+	}
 	public void go() throws java.lang.Exception
 	{
 		AuthProperties prop;
@@ -45,33 +62,17 @@ public class remote_access extends Thread
 		//TESTAR A PESQUISA DE PAPÉIS
 		LOGGING.print("Userinfo: \t" + GENERAL.getUserInfo(prop,accessToken));
 		String content = GENERAL.getRoles(prop,accessToken);		
-		LOGGING.print("Avaliable roles: " + content);
-		String activeRole;
-		JSONObject jObject = new JSONObject(content);
-		JSONArray listRoles = jObject.getJSONArray("roles");
-		if( listRoles.length() <= 0 )
+		String activeRole = getRandomRole(content);
+		LOGGING.print("Selected role:" + activeRole);
+		if( activeRole == null )
 		{
-			LOGGING.print(content);
 			content = GENERAL.getActivateRoles(prop,accessToken);
-			jObject = new JSONObject(content);
-			listRoles = jObject.getJSONArray("roles");
-			int randomRole = RandomProcess.nextInt(listRoles.length());
-			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
-			jCurrent = (JSONObject)jCurrent.get("role");
-			activeRole = jCurrent.getString("id");
+			activeRole = getRandomRole(content);
 		}
 		else
 		{
-			int randomRole = RandomProcess.nextInt(listRoles.length());
-			JSONObject jCurrent = (JSONObject)listRoles.get(randomRole);
-			jCurrent = (JSONObject)jCurrent.get("role");
-			activeRole = jCurrent.getString("id");
-			LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));
-		}
-		LOGGING.print("Selected role:" + activeRole);
-		
-		
-		
+			LOGGING.print(GENERAL.addActivateRoles(prop,accessToken,activeRole));	
+		}		
 		
 		String roles = GENERAL.getActivateRoles(prop,accessToken);
 		LOGGING.print(roles);	
@@ -93,7 +94,7 @@ public class remote_access extends Thread
 		String exportedRoles = RSA.decrypt(cipherRoles, u.getPrivateKey());
 		LOGGING.print(exportedRoles);
 		
-		jObject = new JSONObject(exportedRoles);
+		JSONObject jObject = new JSONObject(exportedRoles);
 		JSONArray listExportedRoles = jObject.getJSONArray("exportedroles");
 		String exportedRole = "";
 		for( int i = 0; i < listExportedRoles.length(); i++ )
